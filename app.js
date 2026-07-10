@@ -38,6 +38,9 @@ function cloud(x, y, s, op = .92) {
     <ellipse cx="${x + 22 * s}" cy="${y + 5 * s}" rx="${18 * s}" ry="${11 * s}"/>
   </g>`;
 }
+function dropShadow(cx, cy, rx, ry, op = .16) {
+  return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#3a2a4a" opacity="${op}"/>`;
+}
 
 /* ---------- 顏色 ---------- */
 const HAIR_COLORS = ['#6e4a2f', '#f4c95d', '#f79ac0', '#a97fd6', '#4a4553', '#e8734a'];
@@ -819,42 +822,81 @@ function lullaby() { tone(523, 523, .4, 0, .08); tone(392, 392, .5, .35, .08); t
 /* ---------- 街道 ---------- */
 function buildingSVG(bx, w, wall, roof, sign, act, loc) {
   const doorX = bx + w / 2;
+  const wallSide = shade(wall, .72);
+  const roofSide = shade(roof, .7);
   return `
+  ${dropShadow(bx + w / 2 + 12, 455, w / 2 + 28, 15, .16)}
+  <path d="M${doorX} 194 L${doorX + 20} 180 L${bx + w + 34} 250 L${bx + w + 14} 260 Z" fill="${roofSide}"/>
+  <path d="M${bx + w} 256 L${bx + w + 20} 242 L${bx + w + 20} 434 L${bx + w} 450 Z" fill="${wallSide}"/>
   <path d="M${bx - 14} 260 L${doorX} 194 L${bx + w + 14} 260 Z" fill="${roof}"/>
+  <path d="M${bx - 14} 260 L${bx + w + 14} 260 L${bx + w + 14} 266 L${bx - 14} 266 Z" fill="${shade(roof, .82)}" opacity=".6"/>
   <rect x="${bx}" y="256" width="${w}" height="194" rx="6" fill="${wall}"/>
   <rect x="${bx + 22}" y="288" width="46" height="46" rx="9" fill="#fff" opacity=".88"/>
   <rect x="${bx + w - 68}" y="288" width="46" height="46" rx="9" fill="#fff" opacity=".88"/>
   <path d="M${bx + 22} 311 h46 M${bx + 45} 288 v46 M${bx + w - 68} 311 h46 M${bx + w - 45} 288 v46" stroke="${shade(wall, .8)}" stroke-width="3"/>
   <g data-act="${act}" data-loc="${loc}" data-x="${doorX}" style="cursor:pointer">
     <rect x="${doorX - 30}" y="352" width="60" height="98" rx="11" fill="${shade(wall, .68)}"/>
+    <rect x="${doorX - 30}" y="352" width="14" height="98" rx="7" fill="${shade(wall, .58)}" opacity=".7"/>
     <circle cx="${doorX + 17}" cy="404" r="4.5" fill="#ffd23e"/>
   </g>
   <rect x="${doorX - 66}" y="220" width="132" height="32" rx="16" fill="#fff" opacity=".95"/>
   <text x="${doorX}" y="243" font-size="17" text-anchor="middle" fill="#c2557f">${sign}</text>`;
 }
-function streetSVG() {
-  const coins = town.coinSpots.map((cx, i) => `
-    <g data-act="coin" data-i="${i}" style="cursor:pointer">
-      <circle cx="${cx}" cy="483" r="14" fill="#ffd23e" stroke="#eda711" stroke-width="3"/>
-      <polygon points="${star(cx, 483, 7, 3)}" fill="#fff" opacity=".9"/>
-    </g>`).join('');
-  const lamp = x => `
-    <rect x="${x - 3}" y="330" width="6" height="118" fill="#b98cc9"/>
-    <circle cx="${x}" cy="322" r="12" fill="#fff3b0" stroke="#b98cc9" stroke-width="3"/>`;
-  const bush = x => `
-    <ellipse cx="${x}" cy="446" rx="26" ry="15" fill="#9ed98c"/>
-    ${flower(x - 8, 442, '#ff8fb8', '#ffd23e')}${flower(x + 10, 448, '#ffffff', '#ffd23e')}`;
+function hillsLayer(baseY, amp, color, op) {
+  const startX = -420, endX = TOWN_W + 420, step = 220;
+  let d = `M${startX} ${baseY}`;
+  let x = startX, up = true;
+  while (x < endX) {
+    const nx = x + step;
+    const cy = baseY + (up ? -amp : amp * .4);
+    d += ` Q${x + step / 2} ${cy} ${nx} ${baseY}`;
+    up = !up; x = nx;
+  }
+  d += ` L${endX} 470 L${startX} 470 Z`;
+  return `<path d="${d}" fill="${color}" opacity="${op}"/>`;
+}
+function farSVG() {
   return `
   <defs><linearGradient id="skyTown" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0" stop-color="#cfe9ff"/><stop offset="1" stop-color="#fdf3fb"/>
   </linearGradient></defs>
-  <rect width="${TOWN_W}" height="520" fill="url(#skyTown)"/>
+  <rect x="-420" width="${TOWN_W + 840}" height="520" fill="url(#skyTown)"/>
   <circle cx="150" cy="72" r="28" fill="#ffe08a"/>
-  ${cloud(320, 80, 1)}${cloud(640, 120, .8)}${cloud(960, 66, .9)}${cloud(1180, 140, .7)}
-  <rect y="436" width="${TOWN_W}" height="18" fill="#b8e6a8"/>
-  <rect y="450" width="${TOWN_W}" height="70" fill="#ece4f4"/>
-  <path d="${Array.from({ length: 13 }, (_, i) => `M${i * 100} 450 v70`).join(' ')}" stroke="#dcd0ea" stroke-width="3"/>
-  <rect y="516" width="${TOWN_W}" height="4" fill="#d8c8e8"/>
+  ${cloud(320, 80, 1)}${cloud(640, 120, .8)}${cloud(960, 66, .9)}${cloud(1180, 140, .7)}${cloud(-140, 110, .85)}${cloud(1420, 95, .9)}
+  ${hillsLayer(430, 26, '#e3d2f2', .55)}
+  ${hillsLayer(448, 22, '#f0ddef', .65)}`;
+}
+function streetSVG() {
+  const coins = town.coinSpots.map((cx, i) => `
+    <g data-act="coin" data-i="${i}" style="cursor:pointer">
+      ${dropShadow(cx, 493, 13, 4, .15)}
+      <circle cx="${cx}" cy="483" r="14" fill="#ffd23e" stroke="#eda711" stroke-width="3"/>
+      <polygon points="${star(cx, 483, 7, 3)}" fill="#fff" opacity=".9"/>
+    </g>`).join('');
+  const lamp = x => `
+    ${dropShadow(x, 452, 11, 4, .14)}
+    <rect x="${x - 3}" y="330" width="6" height="118" fill="#b98cc9"/>
+    <rect x="${x - 3}" y="330" width="3" height="118" fill="${shade('#b98cc9', .78)}"/>
+    <circle cx="${x}" cy="322" r="12" fill="#fff3b0" stroke="#b98cc9" stroke-width="3"/>
+    <circle cx="${x - 4}" cy="318" r="4" fill="#fff" opacity=".55"/>`;
+  const bush = x => `
+    ${dropShadow(x, 453, 28, 8, .12)}
+    <ellipse cx="${x}" cy="446" rx="26" ry="15" fill="#9ed98c"/>
+    <ellipse cx="${x - 7}" cy="440" rx="14" ry="7" fill="#b8ecac" opacity=".7"/>
+    ${flower(x - 8, 442, '#ff8fb8', '#ffd23e')}${flower(x + 10, 448, '#ffffff', '#ffd23e')}`;
+  return `
+  <defs>
+    <linearGradient id="grassGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c7f0b4"/><stop offset="1" stop-color="#9ed98c"/>
+    </linearGradient>
+    <linearGradient id="sidewalkGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f5eefc"/><stop offset="1" stop-color="#dcc9ee"/>
+    </linearGradient>
+  </defs>
+  <rect y="436" width="${TOWN_W}" height="18" fill="url(#grassGrad)"/>
+  <rect y="450" width="${TOWN_W}" height="70" fill="url(#sidewalkGrad)"/>
+  <path d="${Array.from({ length: 13 }, (_, i) => `M${i * 100} 450 v70`).join(' ')}" stroke="#dcd0ea" stroke-width="3" opacity=".6"/>
+  <rect y="516" width="${TOWN_W}" height="4" fill="#c9b0dc"/>
   ${buildingSVG(60, 250, '#ffd9ec', '#ff9ec7', '🏠 小公主的家', 'door', 'home')}
   ${buildingSVG(390, 250, '#eadcfb', '#b28ae0', '👗 服飾店', 'door', 'shop')}
   ${buildingSVG(720, 230, '#ffe9c9', '#ffb37f', '🍰 餐廳', 'soon', 'restaurant')}
@@ -869,9 +911,12 @@ function streetSVG() {
 /* ---------- 家 ---------- */
 function homeSVG() {
   return `
+  <defs><linearGradient id="floorHome" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f7dcb4"/><stop offset="1" stop-color="#e8bd8a"/>
+  </linearGradient></defs>
   <rect width="480" height="400" fill="#fff3f8"/>
-  <rect y="400" width="480" height="120" fill="#f2d4ae"/>
-  <path d="M0 440 h480 M0 480 h480 M120 400 v120 M300 400 v120 M420 400 v120" stroke="#e3bd90" stroke-width="3"/>
+  <rect y="400" width="480" height="120" fill="url(#floorHome)"/>
+  <path d="M0 440 h480 M0 480 h480 M120 400 v120 M300 400 v120 M420 400 v120" stroke="#dba876" stroke-width="3" opacity=".7"/>
   <rect x="185" y="76" width="130" height="116" rx="8" fill="#cfe9ff" stroke="#fff" stroke-width="8"/>
   <circle cx="290" cy="104" r="14" fill="#ffe08a"/>
   ${cloud(220, 130, .5)}
@@ -881,27 +926,36 @@ function homeSVG() {
   <rect x="172" y="64" width="156" height="10" rx="5" fill="#e078a8"/>
   ${heart(90, 110, 2, '#ffb0c8')}
   <rect x="70" y="96" width="42" height="34" rx="6" fill="none" stroke="#e8a0c0" stroke-width="5"/>
+  ${dropShadow(96, 408, 62, 13, .16)}
   <g data-act="wardrobe" style="cursor:pointer">
+    <path d="M152 190 L166 178 L166 402 L152 412 Z" fill="#e078a8"/>
     <rect x="40" y="170" width="112" height="232" rx="12" fill="#f6bcd8"/>
+    <path d="M40 170 L54 158 L166 158 L152 170 Z" fill="#ffd3e6"/>
     <path d="M96 170 v232" stroke="#e078a8" stroke-width="4"/>
     <circle cx="86" cy="292" r="5" fill="#fff"/><circle cx="106" cy="292" r="5" fill="#fff"/>
     <text x="96" y="248" font-size="34" text-anchor="middle">👗</text>
     <polygon points="${star(96, 152, 13, 5.5)}" fill="#ffd23e"/>
   </g>
+  ${dropShadow(392, 408, 92, 14, .16)}
   <g data-act="bed" style="cursor:pointer">
     <rect x="318" y="252" width="20" height="150" rx="9" fill="#e8a0c0"/>
     <rect x="318" y="332" width="150" height="70" rx="12" fill="#f0b4d0"/>
+    <path d="M468 332 L482 322 L482 392 L468 402 Z" fill="#d894b4"/>
     <rect x="328" y="318" width="136" height="36" rx="12" fill="#fff"/>
     <rect x="334" y="306" width="48" height="28" rx="9" fill="#ffe9f4"/>
     <rect x="382" y="314" width="84" height="60" rx="12" fill="#ff9ec7"/>
+    <path d="M466 314 L478 304 L478 364 L466 374 Z" fill="#e878a4"/>
     <circle cx="404" cy="336" r="4" fill="#fff" opacity=".8"/>
     <circle cx="434" cy="352" r="4" fill="#fff" opacity=".8"/>
   </g>
+  ${dropShadow(276, 406, 26, 8, .14)}
   <g data-act="lamp" style="cursor:pointer">
     <rect x="272" y="330" width="9" height="72" rx="4" fill="#d0a0c0"/>
     <ellipse cx="276" cy="402" rx="20" ry="7" fill="#d0a0c0"/>
     <path d="M254 330 L262 296 L292 296 L299 330 Z" fill="${town.lampOff ? '#c9b8d6' : '#ffd670'}"/>
+    ${town.lampOff ? '' : `<ellipse cx="276" cy="330" rx="30" ry="14" fill="#fff3b0" opacity=".35"/>`}
   </g>
+  ${dropShadow(168, 392, 20, 6, .13)}
   <g data-act="teddy" style="cursor:pointer">
     <circle cx="158" cy="362" r="10" fill="#c98d5f"/><circle cx="178" cy="362" r="10" fill="#c98d5f"/>
     <circle cx="168" cy="380" r="15" fill="#c98d5f"/>
@@ -909,6 +963,7 @@ function homeSVG() {
     <circle cx="163" cy="376" r="2" fill="#463a44"/><circle cx="173" cy="376" r="2" fill="#463a44"/>
     <ellipse cx="168" cy="384" rx="5" ry="4" fill="#e8b88a"/>
   </g>
+  ${dropShadow(240, 464, 98, 20, .1)}
   <ellipse cx="240" cy="462" rx="98" ry="26" fill="#ffd9ec" stroke="#ff9ec7" stroke-width="4"/>`;
 }
 
@@ -919,8 +974,10 @@ function shopStand(cx, item, isDress) {
     ? `<svg x="${cx - 45}" y="235" width="90" height="95" viewBox="85 225 190 200">${item.svg('#7fc4f2')}</svg>`
     : `<svg x="${cx - 42}" y="240" width="84" height="90" viewBox="${item.vb}">${item.svg()}</svg>`;
   return `
+  ${dropShadow(cx + 4, 420, 54, 12, .15)}
   <g data-act="buy" data-id="${item.id}" style="cursor:pointer">
     <rect x="${cx - 52}" y="222" width="104" height="196" rx="14" fill="#fff" opacity=".55"/>
+    <path d="M${cx + 46} 340 L${cx + 56} 332 L${cx + 56} 344 L${cx + 46} 354 Z" fill="#c090d8"/>
     <rect x="${cx - 46}" y="340" width="92" height="14" rx="7" fill="#d9b8ea"/>
     <rect x="${cx - 7}" y="352" width="14" height="44" rx="7" fill="#d9b8ea"/>
     ${art}
@@ -936,12 +993,17 @@ function shopSVG() {
   const catears = ACCS.find(a => a.id === 'catears');
   const bag = ACCS.find(a => a.id === 'bag');
   return `
+  <defs><linearGradient id="floorShop" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#efe0fa"/><stop offset="1" stop-color="#dcc4ee"/>
+  </linearGradient></defs>
   <rect width="480" height="400" fill="#f6efff"/>
-  <rect y="400" width="480" height="120" fill="#e8d8f4"/>
-  <path d="M0 445 h480 M0 490 h480" stroke="#d9c4ec" stroke-width="3"/>
+  <rect y="400" width="480" height="120" fill="url(#floorShop)"/>
+  <path d="M0 445 h480 M0 490 h480" stroke="#c9a8de" stroke-width="3" opacity=".6"/>
   <rect x="100" y="34" width="280" height="46" rx="23" fill="#ff9ec7"/>
   <text x="240" y="65" font-size="21" text-anchor="middle" fill="#fff">👗 小小服飾店 👗</text>
   <g transform="translate(-232 -125)">${PETS.find(p => p.id === 'bunny').svg()}</g>
+  ${dropShadow(75, 412, 66, 12, .15)}
+  <path d="M136 312 L146 302 L146 402 L136 412 Z" fill="#a878c8"/>
   <rect x="14" y="312" width="122" height="16" rx="8" fill="#c9a0e0"/>
   <rect x="20" y="326" width="110" height="86" rx="9" fill="#d9b8ea"/>
   ${heart(75, 366, 2, '#ffffff')}
@@ -961,15 +1023,20 @@ function renderTown() {
   else world = shopSVG();
   const dark = (town.loc === 'home' && town.lampOff)
     ? `<rect width="480" height="520" fill="#1a1240" opacity=".5" pointer-events="none"/>` : '';
-  scene.innerHTML = `<g id="world">${world}</g><g id="player">${charSVG(town.napping)}</g>${dark}`;
+  const far = town.loc === 'street' ? farSVG() : '';
+  scene.innerHTML = `<g id="far">${far}</g><g id="world">${world}</g>` +
+    `<ellipse id="playerShadow" fill="#3a2a4a" opacity=".22"/>` +
+    `<g id="player">${charSVG(town.napping)}</g>${dark}`;
   document.body.classList.toggle('inside', town.loc !== 'street');
   updateCam(); updatePlayer();
 }
 function updateCam() {
-  if (town.loc !== 'street') { town.cam = 0; return; }
-  town.cam = clamp(town.x - 240, 0, TOWN_W - 480);
+  if (town.loc !== 'street') { town.cam = 0; }
+  else { town.cam = clamp(town.x - 240, 0, TOWN_W - 480); }
   const w = document.getElementById('world');
   if (w) w.setAttribute('transform', `translate(${-town.cam} 0)`);
+  const f = document.getElementById('far');
+  if (f) f.setAttribute('transform', `translate(${-town.cam * .4} 0)`);
 }
 function updatePlayer(bob = 0) {
   const g = document.getElementById('player');
@@ -981,6 +1048,15 @@ function updatePlayer(bob = 0) {
   g.setAttribute('transform', town.facing < 0
     ? `translate(${px + w} ${py}) scale(${-CHAR_S} ${CHAR_S})`
     : `translate(${px} ${py}) scale(${CHAR_S} ${CHAR_S})`);
+  const sh = document.getElementById('playerShadow');
+  if (sh) {
+    const lift = Math.min(1, Math.abs(bob) / 6);
+    sh.setAttribute('cx', town.x - town.cam);
+    sh.setAttribute('cy', groundY + 4);
+    sh.setAttribute('rx', 30 * CHAR_S * (1 - lift * .35));
+    sh.setAttribute('ry', 9 * CHAR_S * (1 - lift * .35));
+    sh.setAttribute('opacity', .22 - lift * .08);
+  }
 }
 function townLoop() {
   if (!townActive) return;
