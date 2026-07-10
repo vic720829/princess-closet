@@ -863,7 +863,8 @@ let zzzTimer = null;
 const town = {
   loc: 'street', x: 185, tx: 185, facing: 1, cam: 0, phase: 0,
   entering: null, napping: false, eating: false, lampOff: false, coinSpots: [], quiz: null,
-  riding: false, ridePhase: 0, balloons: [false, false, false, false], balloonColors: []
+  riding: false, ridePhase: 0, balloons: [false, false, false, false], balloonColors: [],
+  tasksDone: { home: false, shop: false, restaurant: false, salon: false, school: false, park: false }
 };
 const DOOR_X = { home: 185, shop: 515, restaurant: 835, salon: 1105, school: 1405, park: 1740 };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -878,6 +879,44 @@ function showBubble(msg) {
   setTimeout(() => d.remove(), 1900);
 }
 function coinsUI() { $('#coins').textContent = '🪙 ' + (state.coins || 0); }
+
+/* ---------- 今日任務 ---------- */
+const TASKS = [
+  { id: 'home', em: '🏠', text: '回家睡個午覺' },
+  { id: 'shop', em: '👗', text: '去服飾店逛一逛' },
+  { id: 'restaurant', em: '🍰', text: '去餐廳吃點心' },
+  { id: 'salon', em: '💇‍♀️', text: '去美髮店臭美一下' },
+  { id: 'school', em: '🏫', text: '去學校認真上課' },
+  { id: 'park', em: '🎡', text: '去遊樂園玩一下' }
+];
+function pingTaskBtn() {
+  const b = $('#btn-tasks');
+  b.classList.remove('pulse');
+  void b.offsetWidth;
+  b.classList.add('pulse');
+}
+function renderTaskPanel() {
+  const list = $('#taskList');
+  if (!list) return;
+  list.innerHTML = TASKS.map(t =>
+    `<li class="${town.tasksDone[t.id] ? 'done' : ''}"><span>${t.em} ${t.text}</span><span class="check">${town.tasksDone[t.id] ? '✔' : ''}</span></li>`
+  ).join('');
+}
+function completeTask(id) {
+  if (!town.tasksDone.hasOwnProperty(id) || town.tasksDone[id]) return;
+  town.tasksDone[id] = true;
+  pingTaskBtn();
+  renderTaskPanel();
+  if (Object.values(town.tasksDone).every(v => v)) {
+    setTimeout(() => {
+      state.coins = (state.coins || 0) + 15;
+      saveState(); coinsUI(); chime(); burst(16);
+      showBubble('今日任務全部完成！+15 金幣 🎉');
+      TASKS.forEach(t => { town.tasksDone[t.id] = false; });
+      renderTaskPanel();
+    }, 1600);
+  }
+}
 function ding() { tone(880, 1320, .12); }
 function chaching() { tone(660, 660, .09); tone(990, 990, .2, .09); }
 function doorSound() { tone(440, 560, .15); }
@@ -1407,6 +1446,7 @@ function popBalloon(i) {
   state.coins = (state.coins || 0) + 1;
   saveState(); coinsUI(); ding(); burst(4);
   renderTown();
+  completeTask('park');
   setTimeout(() => {
     town.balloons[i] = false;
     town.balloonColors[i] = pick(DRESS_COLORS);
@@ -1482,6 +1522,7 @@ function townLoop() {
     stopCarouselSparkles();
     town.x = town.tx = 240;
     renderTown();
+    if (dest === 'shop' || dest === 'salon') completeTask(dest);
   }
   if (town.loc === 'park' && town.riding) {
     town.ridePhase += 0.15;
@@ -1502,7 +1543,7 @@ function handleAct(d) {
     renderTown();
   }
   else if (d.act === 'wardrobe') { doorSound(); setTown(false); showBubble('歡迎回到衣櫥 💕'); }
-  else if (d.act === 'bed') { town.napping = true; renderTown(); lullaby(); zzz(); }
+  else if (d.act === 'bed') { town.napping = true; renderTown(); lullaby(); zzz(); completeTask('home'); }
   else if (d.act === 'lamp') { town.lampOff = !town.lampOff; tone(520, 520, .06); renderTown(); }
   else if (d.act === 'teddy') { showBubble('🧸 抱抱！'); pop(); burst(5); }
   else if (d.act === 'buy') { buyItem(d.id); }
@@ -1516,7 +1557,7 @@ function handleAct(d) {
   else if (d.act === 'quiz-answer') { answerQuiz(+d.idx); }
   else if (d.act === 'carousel-toggle') {
     town.riding = !town.riding;
-    if (town.riding) { chime(); startCarouselSparkles(); }
+    if (town.riding) { chime(); startCarouselSparkles(); completeTask('park'); }
     else { pop(); stopCarouselSparkles(); }
     renderTown();
   }
@@ -1533,6 +1574,7 @@ function answerQuiz(idx) {
     saveState(); coinsUI(); chaching(); burst(14);
     showBubble('答對了！+' + reward + ' 金幣 🎉');
     renderTown();
+    completeTask('school');
     clearTimeout(quizTimer);
     quizTimer = setTimeout(() => { town.quiz = null; if (townActive) renderTown(); }, 1400);
   } else {
@@ -1583,6 +1625,7 @@ function eatFood(id) {
   renderTown();
   chomp(); burst(6);
   showBubble(food.name + ' 好好吃 😋');
+  completeTask('restaurant');
   clearTimeout(eatTimer);
   eatTimer = setTimeout(() => {
     town.eating = false;
@@ -1619,6 +1662,15 @@ function setTown(on) {
   }
 }
 $('#btn-town').addEventListener('click', () => setTown(!townActive));
+$('#btn-tasks').addEventListener('click', () => {
+  renderTaskPanel();
+  $('#taskPanel').classList.add('open');
+  pop();
+});
+$('#btn-task-close').addEventListener('click', () => $('#taskPanel').classList.remove('open'));
+$('#taskPanel').addEventListener('click', e => {
+  if (e.target.id === 'taskPanel') $('#taskPanel').classList.remove('open');
+});
 $('#btn-back').addEventListener('click', () => {
   const from = town.loc;
   town.napping = false;
@@ -1647,6 +1699,7 @@ $('#btn-sound').textContent = muted ? '🔇' : '🔊';
 coinsUI();
 renderScene();
 renderPanel();
+renderTaskPanel();
 
 // 本機開發不註冊，避免快取蓋掉修改；正式站（GitHub Pages）才啟用離線快取
 if ('serviceWorker' in navigator && location.protocol === 'https:') {

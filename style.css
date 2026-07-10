@@ -69,6 +69,14 @@ main{flex:1;display:flex;min-height:0;padding:8px 12px 12px;gap:12px}
 /* ---------- 小鎮模式 ---------- */
 body.town #panel,body.town #btn-random,body.town #btn-photo{display:none}
 body.town #stage{aspect-ratio:480/520}
+#btn-tasks{display:none}
+body.town #btn-tasks{display:block}
+@keyframes taskPulse{
+  0%{transform:scale(1)}
+  35%{transform:scale(1.28);box-shadow:0 0 0 8px rgba(255,158,199,.35)}
+  100%{transform:scale(1)}
+}
+#btn-tasks.pulse{animation:taskPulse .5s ease-out}
 #btn-back{
   display:none;position:absolute;top:12px;left:12px;width:46px;height:46px;border-radius:50%;
   border:none;background:#fff;font-size:20px;box-shadow:0 3px 8px rgba(224,68,126,.3);cursor:pointer;z-index:6;
@@ -85,3 +93,25 @@ body.town.inside #btn-back{display:block}
   border:9px solid transparent;border-top-color:#fff;border-bottom:none;
 }
 @keyframes bpop{from{opacity:0;transform:translateX(-50%) scale(.7)}to{opacity:1;transform:translateX(-50%) scale(1)}}
+
+#taskPanel{
+  display:none;position:absolute;inset:0;z-index:10;background:rgba(90,50,80,.4);
+  align-items:center;justify-content:center;border-radius:26px;
+}
+#taskPanel.open{display:flex}
+.taskCard{
+  background:#fff8fb;border-radius:22px;padding:18px 20px;width:82%;max-width:300px;
+  box-shadow:0 10px 30px rgba(90,30,70,.35);animation:bpop .2s;
+}
+.taskCard h3{margin:0 0 12px;color:#e0447e;font-size:18px;text-align:center}
+#taskList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+#taskList li{
+  display:flex;align-items:center;justify-content:space-between;background:#ffeef6;
+  border-radius:14px;padding:8px 12px;font-size:14px;color:#8a5570;
+}
+#taskList li.done{background:#e8f7ea;color:#4a9e5e;text-decoration:line-through;opacity:.75}
+#taskList li .check{font-size:15px;text-decoration:none}
+#btn-task-close{
+  display:block;margin:14px auto 0;border:none;background:#ff9ec7;color:#fff;font-family:inherit;
+  border-radius:16px;padding:8px 24px;font-size:14px;cursor:pointer;box-shadow:0 3px 8px rgba(224,68,126,.3);
+}
