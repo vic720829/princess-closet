@@ -186,6 +186,28 @@ const DRESSES = [
       ${flower(198, 352, '#ffffff', '#ffd23e')}
       ${flower(176, 300, '#ffffff', '#ffd23e')}`;
     }
+  },
+  {
+    id: 'mermaid', name: '人魚尾裙', hideShoes: true,
+    svg: c => {
+      const d = shade(c, .72);
+      let scales = '';
+      [[330, 34], [352, 30], [374, 24]].forEach(row => {
+        const [y, half] = row;
+        for (let x = 180 - half; x < 180 + half; x += 12) {
+          scales += `<path d="M${x} ${y} Q${x + 6} ${y + 8} ${x + 12} ${y}" stroke="#fff" stroke-width="2" fill="none" opacity=".5"/>`;
+        }
+      });
+      return `
+      <path d="M148 238 Q180 252 212 238 L216 306 L144 306 Z" fill="${c}"/>
+      <path d="M146 300 Q180 290 214 300 Q224 370 192 420 Q184 448 190 464 L170 464 Q176 448 168 420 Q136 370 146 300 Z" fill="${c}"/>
+      <path d="M146 300 Q180 290 214 300 L214 314 Q180 304 146 314 Z" fill="${d}"/>
+      <path d="M180 456 Q146 466 134 498 Q166 494 180 478 Q194 494 226 498 Q214 466 180 456 Z" fill="${d}"/>
+      ${scales}
+      <circle cx="164" cy="266" r="3" fill="#fff" opacity=".85"/>
+      <circle cx="196" cy="280" r="3" fill="#fff" opacity=".85"/>
+      <circle cx="182" cy="398" r="3.5" fill="#fff" opacity=".7"/>`;
+    }
   }
 ];
 
@@ -298,6 +320,66 @@ const ACCS = [
       <circle cx="146" cy="152" r="19" fill="#fff" opacity=".25" stroke="#9b7ad6" stroke-width="4"/>
       <circle cx="214" cy="152" r="19" fill="#fff" opacity=".25" stroke="#9b7ad6" stroke-width="4"/>
       <path d="M165 150 Q180 142 195 150" stroke="#9b7ad6" stroke-width="4" fill="none"/>`
+  },
+  {
+    id: 'shell', name: '貝殼項鍊', vb: '156 242 48 46',
+    svg: () => `
+      <path d="M158 246 Q180 262 202 246" stroke="#e8c9a0" stroke-width="2.5" fill="none"/>
+      <path d="M170 260 Q180 253 190 260 L193 272 Q180 284 167 272 Z" fill="#ffdba8" stroke="#e8b06e" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M180 256 L180 281 M173 258 L170 274 M187 258 L190 274" stroke="#e8b06e" stroke-width="1.5" fill="none"/>`
+  },
+  {
+    id: 'starfish', name: '海星髮飾', vb: '222 70 46 46',
+    svg: () => `
+      <polygon points="${star(244, 92, 17, 8)}" fill="#ff8fb8" stroke="#f26a9a" stroke-width="4" stroke-linejoin="round"/>
+      <circle cx="244" cy="88" r="2" fill="#fff" opacity=".9"/>
+      <circle cx="238" cy="96" r="2" fill="#fff" opacity=".9"/>
+      <circle cx="250" cy="96" r="2" fill="#fff" opacity=".9"/>`
+  }
+];
+
+/* ---------- 寵物 ---------- */
+const PETS = [
+  { id: 'none', name: '沒有', svg: () => '' },
+  {
+    id: 'cat', name: '小貓咪',
+    svg: () => `<g>
+      <path d="M326 450 Q348 442 344 418" stroke="#f7c98e" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <ellipse cx="304" cy="450" rx="21" ry="16" fill="#f7c98e"/>
+      <path d="M290 400 L285 384 L300 392 Z" fill="#f7c98e"/>
+      <path d="M318 400 L323 384 L308 392 Z" fill="#f7c98e"/>
+      <path d="M291 396 L288 388 L296 392 Z" fill="#ffb3c4"/>
+      <path d="M317 396 L320 388 L312 392 Z" fill="#ffb3c4"/>
+      <circle cx="304" cy="414" r="19" fill="#f7c98e"/>
+      <path d="M295 412 Q298 408 301 412" stroke="#5a4636" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M307 412 Q310 408 313 412" stroke="#5a4636" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M302 419 L306 419 L304 422 Z" fill="#e0707e"/>
+      <path d="M304 422 Q301 426 298 424 M304 422 Q307 426 310 424" stroke="#5a4636" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M284 416 L274 414 M284 420 L275 422 M324 416 L334 414 M324 420 L333 422" stroke="#5a4636" stroke-width="1.5" stroke-linecap="round"/>
+      <ellipse cx="290" cy="428" rx="5" ry="3" fill="#ffb3c4" opacity=".7"/>
+      <ellipse cx="318" cy="428" rx="5" ry="3" fill="#ffb3c4" opacity=".7"/>
+      <ellipse cx="296" cy="462" rx="6" ry="4" fill="#fce3bd"/>
+      <ellipse cx="312" cy="462" rx="6" ry="4" fill="#fce3bd"/>
+    </g>`
+  },
+  {
+    id: 'bunny', name: '小兔兔',
+    svg: () => `<g>
+      <ellipse cx="298" cy="384" rx="6.5" ry="20" fill="#fff"/>
+      <ellipse cx="316" cy="384" rx="6.5" ry="20" fill="#fff"/>
+      <ellipse cx="298" cy="386" rx="3" ry="14" fill="#ffc7dd"/>
+      <ellipse cx="316" cy="386" rx="3" ry="14" fill="#ffc7dd"/>
+      <ellipse cx="307" cy="452" rx="20" ry="15" fill="#fff"/>
+      <circle cx="307" cy="418" r="18" fill="#fff"/>
+      <path d="M299 416 Q302 412 305 416" stroke="#5a4636" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M309 416 Q312 412 315 416" stroke="#5a4636" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M305 422 L309 422 L307 425 Z" fill="#ff8fb8"/>
+      <ellipse cx="294" cy="428" rx="5" ry="3" fill="#ffc7dd" opacity=".8"/>
+      <ellipse cx="320" cy="428" rx="5" ry="3" fill="#ffc7dd" opacity=".8"/>
+      <ellipse cx="299" cy="463" rx="6" ry="4" fill="#fff"/>
+      <ellipse cx="315" cy="463" rx="6" ry="4" fill="#fff"/>
+      <circle cx="326" cy="450" r="7" fill="#fff"/>
+    </g>`
   }
 ];
 
@@ -411,6 +493,44 @@ const BGS = [
       ${heart(40, 220, 1.5, '#ffb0c8')}${heart(322, 180, 1.3, '#ffb0c8')}
       <path d="M0 452 Q180 426 360 452 L360 520 L0 520 Z" fill="#c3ecb2"/>`;
     }
+  },
+  {
+    id: 'sea', name: '海底世界',
+    svg: () => {
+      let bubbles = '';
+      [[40, 90, 7], [60, 150, 4], [320, 70, 8], [300, 130, 5], [335, 200, 4], [30, 280, 5], [330, 320, 6], [50, 380, 4]].forEach(b => {
+        bubbles += `<circle cx="${b[0]}" cy="${b[1]}" r="${b[2]}" fill="none" stroke="#fff" stroke-width="2" opacity=".5"/>
+        <circle cx="${b[0] - b[2] / 3}" cy="${b[1] - b[2] / 3}" r="${b[2] / 4}" fill="#fff" opacity=".6"/>`;
+      });
+      const fish = (x, y, c, flip) => `<g transform="translate(${x} ${y})${flip ? ' scale(-1,1)' : ''}">
+        <ellipse cx="0" cy="0" rx="11" ry="7" fill="${c}"/>
+        <path d="M-9 0 L-18 -7 L-18 7 Z" fill="${c}"/>
+        <circle cx="5" cy="-1.5" r="1.8" fill="#463a44"/>
+        <path d="M2 3 Q4 5 7 3" stroke="#fff" stroke-width="1.2" fill="none" opacity=".7"/>
+      </g>`;
+      return `
+      <defs><linearGradient id="skySea" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#8fd8f2"/><stop offset="1" stop-color="#3a8fd0"/>
+      </linearGradient></defs>
+      <rect width="360" height="520" fill="url(#skySea)"/>
+      <polygon points="60,0 105,0 170,240 100,240" fill="#fff" opacity=".08"/>
+      <polygon points="230,0 265,0 330,220 270,220" fill="#fff" opacity=".08"/>
+      ${bubbles}
+      ${fish(66, 190, '#ffd670', false)}
+      ${fish(296, 150, '#ff9ec7', true)}
+      ${fish(44, 330, '#8fdcb8', true)}
+      <path d="M0 448 Q180 424 360 448 L360 520 L0 520 Z" fill="#f2ddb0"/>
+      <path d="M22 470 Q8 430 24 396 Q36 372 26 344" stroke="#4db38a" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <path d="M44 478 Q34 444 46 416" stroke="#63c49b" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M338 472 Q352 434 336 400 Q326 378 336 352" stroke="#4db38a" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <path d="M316 480 Q326 450 314 424" stroke="#63c49b" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M300 478 Q300 452 322 452 Q344 452 344 478 Z" fill="#ff9d76"/>
+      <circle cx="312" cy="462" r="2.5" fill="#fff" opacity=".8"/>
+      <circle cx="326" cy="466" r="2.5" fill="#fff" opacity=".8"/>
+      <circle cx="332" cy="458" r="2.5" fill="#fff" opacity=".8"/>
+      <path d="M60 486 Q66 478 72 486 L70 492 Q66 495 62 492 Z" fill="#ffdba8" stroke="#e8b06e" stroke-width="1.5"/>
+      ${heart(180, 30, 1.2, '#ffffff44')}`;
+    }
   }
 ];
 
@@ -420,7 +540,7 @@ const DEFAULT_STATE = {
   hair: 'long', hairColor: '#6e4a2f',
   dress: 'gown', dressColor: '#ff8fc0',
   shoes: 'flats', shoeColor: '#ff8fc0',
-  accs: ['crown'], bg: 'castle'
+  accs: ['crown'], bg: 'castle', pet: 'none'
 };
 let state = loadState();
 let curTab = 'dress';
@@ -440,11 +560,12 @@ function charSVG() {
   const hair = HAIRS.find(h => h.id === state.hair);
   const dress = DRESSES.find(d => d.id === state.dress);
   const shoes = SHOES.find(s => s.id === state.shoes);
+  const pet = PETS.find(p => p.id === state.pet) || PETS[0];
   const accBack = ACCS.filter(a => state.accs.includes(a.id) && a.back).map(a => a.svg()).join('');
   const accFront = ACCS.filter(a => state.accs.includes(a.id) && !a.back).map(a => a.svg()).join('');
   return accBack + hair.back(state.hairColor) + body() + face() +
-    dress.svg(state.dressColor) + shoes.svg(state.shoeColor) +
-    hair.front(state.hairColor) + accFront;
+    dress.svg(state.dressColor) + (dress.hideShoes ? '' : shoes.svg(state.shoeColor)) +
+    hair.front(state.hairColor) + accFront + pet.svg();
 }
 function renderScene() {
   const bg = BGS.find(b => b.id === state.bg);
@@ -457,6 +578,7 @@ const TABS = [
   { id: 'dress', label: '洋裝', em: '👗' },
   { id: 'shoes', label: '鞋鞋', em: '🥿' },
   { id: 'acc', label: '配件', em: '👑' },
+  { id: 'pet', label: '寵物', em: '🐱' },
   { id: 'bg', label: '場景', em: '🏰' }
 ];
 function renderTabs() {
@@ -481,9 +603,12 @@ function preview(item, cat) {
     const c = state.hairColor;
     return `<svg viewBox="15 0 330 340">${item.back(c)}<ellipse cx="180" cy="140" rx="90" ry="85" fill="${SKIN}"/>${item.front(c)}</svg>`;
   }
-  if (cat === 'dress') return `<svg viewBox="85 225 190 200">${item.svg(state.dressColor)}</svg>`;
+  if (cat === 'dress') return `<svg viewBox="85 225 190 ${item.hideShoes ? 280 : 200}">${item.svg(state.dressColor)}</svg>`;
   if (cat === 'shoes') return `<svg viewBox="138 400 88 78">${item.svg(state.shoeColor)}</svg>`;
   if (cat === 'acc') return `<svg viewBox="${item.vb}">${item.svg()}</svg>`;
+  if (cat === 'pet') return item.id === 'none'
+    ? `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" fill="none" stroke="#e0b0c8" stroke-width="6"/><line x1="30" y1="70" x2="70" y2="30" stroke="#e0b0c8" stroke-width="6" stroke-linecap="round"/></svg>`
+    : `<svg viewBox="268 372 78 102">${item.svg()}</svg>`;
   return `<svg viewBox="0 0 360 520">${item.svg()}</svg>`;
 }
 function renderItems() {
@@ -493,6 +618,7 @@ function renderItems() {
   else if (curTab === 'dress') { list = DRESSES; isOn = i => state.dress === i.id; }
   else if (curTab === 'shoes') { list = SHOES; isOn = i => state.shoes === i.id; }
   else if (curTab === 'acc') { list = ACCS; isOn = i => state.accs.includes(i.id); }
+  else if (curTab === 'pet') { list = PETS; isOn = i => state.pet === i.id; }
   else { list = BGS; isOn = i => state.bg === i.id; }
   box.innerHTML = list.map(i =>
     `<button data-item="${i.id}" class="${isOn(i) ? 'on' : ''}">${preview(i, curTab)}<div class="nm">${i.name}</div></button>`
@@ -564,6 +690,7 @@ $('#items').addEventListener('click', e => {
   if (curTab === 'hair') state.hair = id;
   else if (curTab === 'dress') state.dress = id;
   else if (curTab === 'shoes') state.shoes = id;
+  else if (curTab === 'pet') state.pet = id;
   else if (curTab === 'bg') state.bg = id;
   else {
     const i = state.accs.indexOf(id);
@@ -581,6 +708,7 @@ $('#btn-random').addEventListener('click', () => {
   state.shoes = pick(SHOES).id;
   state.shoeColor = pick(DRESS_COLORS);
   state.bg = pick(BGS).id;
+  state.pet = pick(PETS).id;
   state.accs = ACCS.filter(() => Math.random() < .4).map(a => a.id);
   saveState(); renderScene(); renderPanel();
   burst(14); chime();
