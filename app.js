@@ -58,11 +58,18 @@ function body() {
   <path d="M150 240 Q180 232 210 240 L214 322 Q180 334 146 322 Z" fill="${SKIN}"/>
   <ellipse cx="180" cy="140" rx="90" ry="85" fill="${SKIN}"/>`;
 }
-function face(sleep) {
-  const eyes = sleep
-    ? `<path d="M135 150 Q147 160 159 150" stroke="#463a44" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <path d="M201 150 Q213 160 225 150" stroke="#463a44" stroke-width="4" fill="none" stroke-linecap="round"/>`
-    : `<ellipse cx="147" cy="153" rx="12" ry="15" fill="#463a44"/>
+function face(mode) {
+  let eyes, mouth;
+  if (mode === 'sleep') {
+    eyes = `<path d="M135 150 Q147 160 159 150" stroke="#463a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M201 150 Q213 160 225 150" stroke="#463a44" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+    mouth = `<ellipse cx="180" cy="192" rx="6" ry="7" fill="#d96a7e"/>`;
+  } else if (mode === 'eat') {
+    eyes = `<path d="M135 150 Q147 142 159 150" stroke="#463a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M201 150 Q213 142 225 150" stroke="#463a44" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+    mouth = `<ellipse cx="180" cy="193" rx="10" ry="9" fill="#8a4a54"/><ellipse cx="180" cy="196" rx="6.5" ry="4.5" fill="#e8879a"/>`;
+  } else {
+    eyes = `<ellipse cx="147" cy="153" rx="12" ry="15" fill="#463a44"/>
   <ellipse cx="213" cy="153" rx="12" ry="15" fill="#463a44"/>
   <circle cx="151" cy="147" r="4.5" fill="#fff"/>
   <circle cx="217" cy="147" r="4.5" fill="#fff"/>
@@ -72,9 +79,8 @@ function face(sleep) {
   <path d="M133 154 L124 152" stroke="#463a44" stroke-width="3" stroke-linecap="round"/>
   <path d="M229 145 L237 140" stroke="#463a44" stroke-width="3" stroke-linecap="round"/>
   <path d="M227 154 L236 152" stroke="#463a44" stroke-width="3" stroke-linecap="round"/>`;
-  const mouth = sleep
-    ? `<ellipse cx="180" cy="192" rx="6" ry="7" fill="#d96a7e"/>`
-    : `<path d="M167 189 Q180 205 193 189 Q186 195 180 195 Q174 195 167 189 Z" fill="#d96a7e"/>`;
+    mouth = `<path d="M167 189 Q180 205 193 189 Q186 195 180 195 Q174 195 167 189 Z" fill="#d96a7e"/>`;
+  }
   return `
   <path d="M136 127 Q147 120 158 126" stroke="#c99a76" stroke-width="4" fill="none" stroke-linecap="round"/>
   <path d="M202 126 Q213 120 224 127" stroke="#c99a76" stroke-width="4" fill="none" stroke-linecap="round"/>
@@ -426,6 +432,44 @@ const PETS = [
   }
 ];
 
+/* ---------- 餐廳菜單 ---------- */
+const FOODS = [
+  {
+    id: 'cake', name: '草莓蛋糕', price: 6,
+    svg: () => `
+      <ellipse cx="50" cy="78" rx="30" ry="7" fill="#e8b6d0" opacity=".6"/>
+      <path d="M24 74 L50 24 L76 74 Z" fill="#fff6ea"/>
+      <path d="M24 74 L76 74 L76 66 L24 66 Z" fill="#ff9ec7"/>
+      <path d="M31 66 L46 40 L61 66 Z" fill="#ffd9ec" opacity=".8"/>
+      <path d="M24 74 Q50 82 76 74 L76 78 Q50 86 24 78 Z" fill="#e878a4"/>
+      <circle cx="50" cy="30" r="7" fill="#e0384f"/>
+      <circle cx="47" cy="27" r="2.5" fill="#fff" opacity=".8"/>
+      <circle cx="36" cy="58" r="2.5" fill="#fff" opacity=".9"/>
+      <circle cx="58" cy="52" r="2.5" fill="#fff" opacity=".9"/>`
+  },
+  {
+    id: 'icecream', name: '冰淇淋', price: 5,
+    svg: () => `
+      <ellipse cx="50" cy="90" rx="16" ry="5" fill="#e8b6d0" opacity=".5"/>
+      <path d="M38 60 L62 60 L52 92 Q50 96 48 92 Z" fill="#f0c896"/>
+      <path d="M40 62 L60 62 M42 70 L58 70 M44 78 L56 78" stroke="#d4a875" stroke-width="1.6"/>
+      <circle cx="50" cy="48" r="20" fill="#ffd6e8"/>
+      <circle cx="38" cy="40" r="15" fill="#fff6ea"/>
+      <circle cx="62" cy="40" r="15" fill="#ffb3c4"/>
+      <circle cx="50" cy="26" r="5" fill="#e0384f"/>`
+  },
+  {
+    id: 'donut', name: '甜甜圈', price: 4,
+    svg: () => `
+      <circle cx="50" cy="52" r="30" fill="#e8a05a"/>
+      <circle cx="50" cy="52" r="26" fill="#ffb3c4"/>
+      <circle cx="50" cy="52" r="9" fill="#fff6ea"/>
+      <circle cx="38" cy="38" r="3" fill="#7fc4f2"/><circle cx="62" cy="38" r="3" fill="#ffd23e"/>
+      <circle cx="66" cy="52" r="3" fill="#8fdcb8"/><circle cx="34" cy="60" r="3" fill="#ff8fc0"/>
+      <circle cx="50" cy="76" r="3" fill="#bf94ea"/><circle cx="60" cy="68" r="3" fill="#7fc4f2"/>`
+  }
+];
+
 /* ---------- 場景 ---------- */
 const BGS = [
   {
@@ -600,14 +644,14 @@ function loadState() {
 function saveState() { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
 
 /* ---------- 畫面組裝 ---------- */
-function charSVG(sleep) {
+function charSVG(mode) {
   const hair = HAIRS.find(h => h.id === state.hair);
   const dress = DRESSES.find(d => d.id === state.dress);
   const shoes = SHOES.find(s => s.id === state.shoes);
   const pet = PETS.find(p => p.id === state.pet) || PETS[0];
   const accBack = ACCS.filter(a => state.accs.includes(a.id) && a.back).map(a => a.svg()).join('');
   const accFront = ACCS.filter(a => state.accs.includes(a.id) && !a.back).map(a => a.svg()).join('');
-  return accBack + hair.back(state.hairColor) + body() + face(sleep) +
+  return accBack + hair.back(state.hairColor) + body() + face(mode) +
     dress.svg(state.dressColor) + (dress.hideShoes ? '' : shoes.svg(state.shoeColor)) +
     hair.front(state.hairColor) + accFront + pet.svg();
 }
@@ -799,7 +843,7 @@ let loopTimer = null;
 let zzzTimer = null;
 const town = {
   loc: 'street', x: 185, tx: 185, facing: 1, cam: 0, phase: 0,
-  entering: null, napping: false, lampOff: false, coinSpots: []
+  entering: null, napping: false, eating: false, lampOff: false, coinSpots: []
 };
 const DOOR_X = { home: 185, shop: 515, restaurant: 835, salon: 1105 };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -899,7 +943,7 @@ function streetSVG() {
   <rect y="516" width="${TOWN_W}" height="4" fill="#c9b0dc"/>
   ${buildingSVG(60, 250, '#ffd9ec', '#ff9ec7', '🏠 小公主的家', 'door', 'home')}
   ${buildingSVG(390, 250, '#eadcfb', '#b28ae0', '👗 服飾店', 'door', 'shop')}
-  ${buildingSVG(720, 230, '#ffe9c9', '#ffb37f', '🍰 餐廳', 'soon', 'restaurant')}
+  ${buildingSVG(720, 230, '#ffe9c9', '#ffb37f', '🍰 餐廳', 'door', 'restaurant')}
   ${buildingSVG(1000, 210, '#d8f2e4', '#7fd0b0', '💇‍♀️ 美髮店', 'soon', 'salon')}
   ${heart(185, 210, 1.6, '#ff6fa5')}
   <svg x="425" y="290" width="50" height="56" viewBox="85 225 190 200">${DRESSES[0].svg('#ff8fc0')}</svg>
@@ -1014,19 +1058,74 @@ function shopSVG() {
   ${shopStand(415, bag, false)}`;
 }
 
+/* ---------- 餐廳 ---------- */
+function foodStand(cx, food) {
+  return `
+  ${dropShadow(cx + 3, 414, 50, 11, .15)}
+  <g data-act="food" data-id="${food.id}" style="cursor:pointer">
+    <rect x="${cx - 48}" y="248" width="96" height="150" rx="14" fill="#fff" opacity=".55"/>
+    <path d="M${cx + 38} 330 L${cx + 48} 322 L${cx + 48} 334 L${cx + 38} 344 Z" fill="#e0a868"/>
+    <rect x="${cx - 42}" y="330" width="84" height="14" rx="7" fill="#f2c78e"/>
+    <svg x="${cx - 38}" y="256" width="76" height="76" viewBox="0 0 100 100">${food.svg()}</svg>
+    <rect x="${cx - 32}" y="352" width="64" height="27" rx="13" fill="#fff" stroke="#eda711" stroke-width="2.5"/>
+    <circle cx="${cx - 12}" cy="365" r="8" fill="#ffd23e" stroke="#eda711" stroke-width="2"/>
+    <text x="${cx + 12}" y="371" font-size="16" text-anchor="middle" fill="#d09010">${food.price}</text>
+  </g>`;
+}
+function restaurantSVG() {
+  const cake = FOODS.find(f => f.id === 'cake');
+  const ice = FOODS.find(f => f.id === 'icecream');
+  const donut = FOODS.find(f => f.id === 'donut');
+  return `
+  <defs><linearGradient id="floorRest" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fff0da"/><stop offset="1" stop-color="#f2d4a8"/>
+  </linearGradient></defs>
+  <rect width="480" height="400" fill="#fff7ec"/>
+  <rect y="400" width="480" height="120" fill="url(#floorRest)"/>
+  <path d="M0 445 h480 M0 490 h480" stroke="#e0b880" stroke-width="3" opacity=".6"/>
+  <rect x="90" y="34" width="300" height="46" rx="23" fill="#ffb37f"/>
+  <text x="240" y="65" font-size="21" text-anchor="middle" fill="#fff">🍰 小小餐廳 🍰</text>
+  <g transform="translate(24 68)">
+    <path d="M4 226 Q4 202 28 200 Q52 202 52 226 Q52 214 42 216 Q44 194 28 194 Q12 194 14 216 Q4 214 4 226 Z" fill="#fff"/>
+    <rect x="6" y="222" width="44" height="10" rx="5" fill="#fff"/>
+    <circle cx="6" cy="234" r="12" fill="#c98d5f"/><circle cx="50" cy="234" r="12" fill="#c98d5f"/>
+    <circle cx="6" cy="232" r="6" fill="#e8b88a"/><circle cx="50" cy="232" r="6" fill="#e8b88a"/>
+    <circle cx="28" cy="246" r="26" fill="#c98d5f"/>
+    <circle cx="18" cy="242" r="3" fill="#463a44"/><circle cx="38" cy="242" r="3" fill="#463a44"/>
+    <ellipse cx="28" cy="252" rx="8" ry="6" fill="#e8b88a"/>
+    <circle cx="28" cy="254" r="2" fill="#463a44"/>
+    <path d="M20 258 Q28 264 36 258" stroke="#463a44" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M4 274 L52 274 L46 306 L10 306 Z" fill="#fff"/>
+    ${heart(28, 290, 1.3, '#ff9ec7')}
+  </g>
+  ${dropShadow(75, 412, 66, 12, .15)}
+  <path d="M136 312 L146 302 L146 402 L136 412 Z" fill="#c99060"/>
+  <rect x="14" y="312" width="122" height="16" rx="8" fill="#e0a868"/>
+  <rect x="20" y="326" width="110" height="86" rx="9" fill="#f2c78e"/>
+  ${heart(75, 366, 2, '#ffffff')}
+  ${dropShadow(410, 380, 30, 8, .13)}
+  <ellipse cx="410" cy="330" rx="34" ry="10" fill="#fff" opacity=".85"/>
+  <rect x="404" y="330" width="12" height="44" fill="#e0b880"/>
+  <ellipse cx="410" cy="376" rx="20" ry="6" fill="#c99060" opacity=".5"/>
+  ${foodStand(200, cake)}
+  ${foodStand(310, ice)}
+  ${foodStand(415, donut)}`;
+}
+
 /* ---------- 場景組裝與遊戲迴圈 ---------- */
 function renderTown() {
   const scene = $('#scene');
   let world;
   if (town.loc === 'street') world = streetSVG();
   else if (town.loc === 'home') world = homeSVG();
+  else if (town.loc === 'restaurant') world = restaurantSVG();
   else world = shopSVG();
   const dark = (town.loc === 'home' && town.lampOff)
     ? `<rect width="480" height="520" fill="#1a1240" opacity=".5" pointer-events="none"/>` : '';
   const far = town.loc === 'street' ? farSVG() : '';
   scene.innerHTML = `<g id="far">${far}</g><g id="world">${world}</g>` +
     `<ellipse id="playerShadow" fill="#3a2a4a" opacity=".22"/>` +
-    `<g id="player">${charSVG(town.napping)}</g>${dark}`;
+    `<g id="player">${charSVG(town.napping ? 'sleep' : town.eating ? 'eat' : 'normal')}</g>${dark}`;
   document.body.classList.toggle('inside', town.loc !== 'street');
   updateCam(); updatePlayer();
 }
@@ -1094,6 +1193,7 @@ function handleAct(d) {
   else if (d.act === 'lamp') { town.lampOff = !town.lampOff; tone(520, 520, .06); renderTown(); }
   else if (d.act === 'teddy') { showBubble('🧸 抱抱！'); pop(); burst(5); }
   else if (d.act === 'buy') { buyItem(d.id); }
+  else if (d.act === 'food') { eatFood(d.id); }
 }
 function buyItem(id) {
   const item = [...DRESSES, ...ACCS].find(i => i.id === id);
@@ -1111,6 +1211,32 @@ function buyItem(id) {
     tone(300, 220, .18);
     showBubble(`還差 ${item.price - state.coins} 個金幣，去街上找找 🪙`);
   }
+}
+let eatTimer = null;
+function chomp() {
+  tone(240, 180, .08);
+  setTimeout(() => tone(260, 200, .08), 140);
+  setTimeout(() => tone(280, 220, .1), 280);
+}
+function eatFood(id) {
+  const food = FOODS.find(f => f.id === id);
+  if (!food) return;
+  if ((state.coins || 0) < food.price) {
+    tone(300, 220, .18);
+    showBubble(`還差 ${food.price - (state.coins || 0)} 個金幣，去街上找找 🪙`);
+    return;
+  }
+  state.coins -= food.price;
+  saveState(); coinsUI(); chaching();
+  town.eating = true;
+  renderTown();
+  chomp(); burst(6);
+  showBubble(food.name + ' 好好吃 😋');
+  clearTimeout(eatTimer);
+  eatTimer = setTimeout(() => {
+    town.eating = false;
+    if (townActive) renderTown();
+  }, 900);
 }
 function zzz() {
   clearInterval(zzzTimer);
