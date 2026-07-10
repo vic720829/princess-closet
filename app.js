@@ -55,11 +55,11 @@ function body() {
   <path d="M150 240 Q180 232 210 240 L214 322 Q180 334 146 322 Z" fill="${SKIN}"/>
   <ellipse cx="180" cy="140" rx="90" ry="85" fill="${SKIN}"/>`;
 }
-function face() {
-  return `
-  <path d="M136 127 Q147 120 158 126" stroke="#c99a76" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <path d="M202 126 Q213 120 224 127" stroke="#c99a76" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <ellipse cx="147" cy="153" rx="12" ry="15" fill="#463a44"/>
+function face(sleep) {
+  const eyes = sleep
+    ? `<path d="M135 150 Q147 160 159 150" stroke="#463a44" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M201 150 Q213 160 225 150" stroke="#463a44" stroke-width="4" fill="none" stroke-linecap="round"/>`
+    : `<ellipse cx="147" cy="153" rx="12" ry="15" fill="#463a44"/>
   <ellipse cx="213" cy="153" rx="12" ry="15" fill="#463a44"/>
   <circle cx="151" cy="147" r="4.5" fill="#fff"/>
   <circle cx="217" cy="147" r="4.5" fill="#fff"/>
@@ -68,11 +68,18 @@ function face() {
   <path d="M131 145 L123 140" stroke="#463a44" stroke-width="3" stroke-linecap="round"/>
   <path d="M133 154 L124 152" stroke="#463a44" stroke-width="3" stroke-linecap="round"/>
   <path d="M229 145 L237 140" stroke="#463a44" stroke-width="3" stroke-linecap="round"/>
-  <path d="M227 154 L236 152" stroke="#463a44" stroke-width="3" stroke-linecap="round"/>
+  <path d="M227 154 L236 152" stroke="#463a44" stroke-width="3" stroke-linecap="round"/>`;
+  const mouth = sleep
+    ? `<ellipse cx="180" cy="192" rx="6" ry="7" fill="#d96a7e"/>`
+    : `<path d="M167 189 Q180 205 193 189 Q186 195 180 195 Q174 195 167 189 Z" fill="#d96a7e"/>`;
+  return `
+  <path d="M136 127 Q147 120 158 126" stroke="#c99a76" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M202 126 Q213 120 224 127" stroke="#c99a76" stroke-width="4" fill="none" stroke-linecap="round"/>
+  ${eyes}
   <ellipse cx="118" cy="180" rx="13" ry="8" fill="#ffb3c4" opacity=".7"/>
   <ellipse cx="242" cy="180" rx="13" ry="8" fill="#ffb3c4" opacity=".7"/>
   <circle cx="180" cy="172" r="2.5" fill="#f0b294"/>
-  <path d="M167 189 Q180 205 193 189 Q186 195 180 195 Q174 195 167 189 Z" fill="#d96a7e"/>`;
+  ${mouth}`;
 }
 
 /* ---------- 髮型 ---------- */
@@ -208,6 +215,22 @@ const DRESSES = [
       <circle cx="196" cy="280" r="3" fill="#fff" opacity=".85"/>
       <circle cx="182" cy="398" r="3.5" fill="#fff" opacity=".7"/>`;
     }
+  },
+  {
+    id: 'stardress', name: '星星洋裝', price: 10,
+    svg: c => {
+      const d = shade(c, .78);
+      return `
+      <circle cx="146" cy="250" r="13" fill="${c}"/><circle cx="214" cy="250" r="13" fill="${c}"/>
+      <path d="M150 238 L210 238 L236 382 Q180 396 124 382 Z" fill="${c}"/>
+      <path d="M126 370 Q180 384 234 370 L236 382 Q180 396 124 382 Z" fill="${d}"/>
+      <polygon points="${star(160, 300, 9, 4)}" fill="#fff" opacity=".95"/>
+      <polygon points="${star(202, 330, 7, 3)}" fill="#fff" opacity=".95"/>
+      <polygon points="${star(170, 356, 8, 3.5)}" fill="#fff" opacity=".95"/>
+      <polygon points="${star(206, 282, 5, 2.2)}" fill="#fff" opacity=".8"/>
+      <polygon points="${star(142, 336, 5, 2.2)}" fill="#fff" opacity=".8"/>
+      <circle cx="180" cy="252" r="5" fill="#ffd23e"/>`;
+    }
   }
 ];
 
@@ -335,6 +358,23 @@ const ACCS = [
       <circle cx="244" cy="88" r="2" fill="#fff" opacity=".9"/>
       <circle cx="238" cy="96" r="2" fill="#fff" opacity=".9"/>
       <circle cx="250" cy="96" r="2" fill="#fff" opacity=".9"/>`
+  },
+  {
+    id: 'catears', name: '貓耳髮箍', price: 15, vb: '100 24 160 76',
+    svg: () => `
+      <path d="M108 92 Q180 34 252 92" stroke="#ff8fb8" stroke-width="7" fill="none"/>
+      <path d="M118 74 L112 40 L146 56 Z" fill="#ff8fb8"/>
+      <path d="M242 74 L248 40 L214 56 Z" fill="#ff8fb8"/>
+      <path d="M122 66 L119 48 L137 57 Z" fill="#ffd9ec"/>
+      <path d="M238 66 L241 48 L223 57 Z" fill="#ffd9ec"/>`
+  },
+  {
+    id: 'bag', name: '小提包', price: 20, vb: '76 292 76 96',
+    svg: () => `
+      <path d="M98 314 Q112 288 126 314" stroke="#e078a8" stroke-width="5" fill="none"/>
+      <rect x="86" y="312" width="52" height="44" rx="12" fill="#ff8fb8"/>
+      <rect x="86" y="312" width="52" height="16" rx="8" fill="#e078a8"/>
+      ${heart(112, 340, 1.3, '#ffffff')}`
   }
 ];
 
@@ -540,7 +580,8 @@ const DEFAULT_STATE = {
   hair: 'long', hairColor: '#6e4a2f',
   dress: 'gown', dressColor: '#ff8fc0',
   shoes: 'flats', shoeColor: '#ff8fc0',
-  accs: ['crown'], bg: 'castle', pet: 'none'
+  accs: ['crown'], bg: 'castle', pet: 'none',
+  coins: 30, owned: []
 };
 let state = loadState();
 let curTab = 'dress';
@@ -556,14 +597,14 @@ function loadState() {
 function saveState() { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
 
 /* ---------- 畫面組裝 ---------- */
-function charSVG() {
+function charSVG(sleep) {
   const hair = HAIRS.find(h => h.id === state.hair);
   const dress = DRESSES.find(d => d.id === state.dress);
   const shoes = SHOES.find(s => s.id === state.shoes);
   const pet = PETS.find(p => p.id === state.pet) || PETS[0];
   const accBack = ACCS.filter(a => state.accs.includes(a.id) && a.back).map(a => a.svg()).join('');
   const accFront = ACCS.filter(a => state.accs.includes(a.id) && !a.back).map(a => a.svg()).join('');
-  return accBack + hair.back(state.hairColor) + body() + face() +
+  return accBack + hair.back(state.hairColor) + body() + face(sleep) +
     dress.svg(state.dressColor) + (dress.hideShoes ? '' : shoes.svg(state.shoeColor)) +
     hair.front(state.hairColor) + accFront + pet.svg();
 }
@@ -620,10 +661,12 @@ function renderItems() {
   else if (curTab === 'acc') { list = ACCS; isOn = i => state.accs.includes(i.id); }
   else if (curTab === 'pet') { list = PETS; isOn = i => state.pet === i.id; }
   else { list = BGS; isOn = i => state.bg === i.id; }
-  box.innerHTML = list.map(i =>
-    `<button data-item="${i.id}" class="${isOn(i) ? 'on' : ''}">${preview(i, curTab)}<div class="nm">${i.name}</div></button>`
-  ).join('');
+  box.innerHTML = list.map(i => {
+    const lk = isLocked(i);
+    return `<button data-item="${i.id}" class="${isOn(i) ? 'on' : ''}${lk ? ' locked' : ''}">${preview(i, curTab)}<div class="nm">${lk ? '🔒 🪙' + i.price : i.name}</div></button>`;
+  }).join('');
 }
+function isLocked(item) { return !!item.price && !(state.owned || []).includes(item.id); }
 function renderPanel() { renderTabs(); renderSwatches(); renderItems(); }
 
 /* ---------- 音效 ---------- */
@@ -687,6 +730,9 @@ $('#items').addEventListener('click', e => {
   const b = e.target.closest('button[data-item]');
   if (!b) return;
   const id = b.dataset.item;
+  const allItems = [...HAIRS, ...DRESSES, ...SHOES, ...ACCS, ...PETS, ...BGS];
+  const it = allItems.find(i => i.id === id && i.price);
+  if (it && isLocked(it)) { tone(300, 220, .18); showBubble('去服飾店買才能穿喔 🛍️'); return; }
   if (curTab === 'hair') state.hair = id;
   else if (curTab === 'dress') state.dress = id;
   else if (curTab === 'shoes') state.shoes = id;
@@ -701,15 +747,16 @@ $('#items').addEventListener('click', e => {
 });
 $('#btn-random').addEventListener('click', () => {
   const pick = a => a[Math.floor(Math.random() * a.length)];
+  const ownedOnly = a => a.filter(i => !isLocked(i));
   state.hair = pick(HAIRS).id;
   state.hairColor = pick(HAIR_COLORS);
-  state.dress = pick(DRESSES).id;
+  state.dress = pick(ownedOnly(DRESSES)).id;
   state.dressColor = pick(DRESS_COLORS);
   state.shoes = pick(SHOES).id;
   state.shoeColor = pick(DRESS_COLORS);
   state.bg = pick(BGS).id;
   state.pet = pick(PETS).id;
-  state.accs = ACCS.filter(() => Math.random() < .4).map(a => a.id);
+  state.accs = ownedOnly(ACCS).filter(() => Math.random() < .4).map(a => a.id);
   saveState(); renderScene(); renderPanel();
   burst(14); chime();
 });
@@ -741,11 +788,311 @@ $('#btn-sound').addEventListener('click', () => {
   if (!muted) pop();
 });
 
+/* ==================== 小鎮模式 ==================== */
+const TOWN_W = 1240;
+const CHAR_S = 0.42;
+let townActive = false;
+let loopTimer = null;
+let zzzTimer = null;
+const town = {
+  loc: 'street', x: 185, tx: 185, facing: 1, cam: 0, phase: 0,
+  entering: null, napping: false, lampOff: false, coinSpots: []
+};
+const DOOR_X = { home: 185, shop: 515, restaurant: 835, salon: 1105 };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+function showBubble(msg) {
+  const old = $('#stage .bubble');
+  if (old) old.remove();
+  const d = document.createElement('div');
+  d.className = 'bubble';
+  d.textContent = msg;
+  $('#stage').appendChild(d);
+  setTimeout(() => d.remove(), 1900);
+}
+function coinsUI() { $('#coins').textContent = '🪙 ' + (state.coins || 0); }
+function ding() { tone(880, 1320, .12); }
+function chaching() { tone(660, 660, .09); tone(990, 990, .2, .09); }
+function doorSound() { tone(440, 560, .15); }
+function lullaby() { tone(523, 523, .4, 0, .08); tone(392, 392, .5, .35, .08); tone(330, 330, .6, .75, .07); }
+
+/* ---------- 街道 ---------- */
+function buildingSVG(bx, w, wall, roof, sign, act, loc) {
+  const doorX = bx + w / 2;
+  return `
+  <path d="M${bx - 14} 260 L${doorX} 194 L${bx + w + 14} 260 Z" fill="${roof}"/>
+  <rect x="${bx}" y="256" width="${w}" height="194" rx="6" fill="${wall}"/>
+  <rect x="${bx + 22}" y="288" width="46" height="46" rx="9" fill="#fff" opacity=".88"/>
+  <rect x="${bx + w - 68}" y="288" width="46" height="46" rx="9" fill="#fff" opacity=".88"/>
+  <path d="M${bx + 22} 311 h46 M${bx + 45} 288 v46 M${bx + w - 68} 311 h46 M${bx + w - 45} 288 v46" stroke="${shade(wall, .8)}" stroke-width="3"/>
+  <g data-act="${act}" data-loc="${loc}" data-x="${doorX}" style="cursor:pointer">
+    <rect x="${doorX - 30}" y="352" width="60" height="98" rx="11" fill="${shade(wall, .68)}"/>
+    <circle cx="${doorX + 17}" cy="404" r="4.5" fill="#ffd23e"/>
+  </g>
+  <rect x="${doorX - 66}" y="220" width="132" height="32" rx="16" fill="#fff" opacity=".95"/>
+  <text x="${doorX}" y="243" font-size="17" text-anchor="middle" fill="#c2557f">${sign}</text>`;
+}
+function streetSVG() {
+  const coins = town.coinSpots.map((cx, i) => `
+    <g data-act="coin" data-i="${i}" style="cursor:pointer">
+      <circle cx="${cx}" cy="483" r="14" fill="#ffd23e" stroke="#eda711" stroke-width="3"/>
+      <polygon points="${star(cx, 483, 7, 3)}" fill="#fff" opacity=".9"/>
+    </g>`).join('');
+  const lamp = x => `
+    <rect x="${x - 3}" y="330" width="6" height="118" fill="#b98cc9"/>
+    <circle cx="${x}" cy="322" r="12" fill="#fff3b0" stroke="#b98cc9" stroke-width="3"/>`;
+  const bush = x => `
+    <ellipse cx="${x}" cy="446" rx="26" ry="15" fill="#9ed98c"/>
+    ${flower(x - 8, 442, '#ff8fb8', '#ffd23e')}${flower(x + 10, 448, '#ffffff', '#ffd23e')}`;
+  return `
+  <defs><linearGradient id="skyTown" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#cfe9ff"/><stop offset="1" stop-color="#fdf3fb"/>
+  </linearGradient></defs>
+  <rect width="${TOWN_W}" height="520" fill="url(#skyTown)"/>
+  <circle cx="150" cy="72" r="28" fill="#ffe08a"/>
+  ${cloud(320, 80, 1)}${cloud(640, 120, .8)}${cloud(960, 66, .9)}${cloud(1180, 140, .7)}
+  <rect y="436" width="${TOWN_W}" height="18" fill="#b8e6a8"/>
+  <rect y="450" width="${TOWN_W}" height="70" fill="#ece4f4"/>
+  <path d="${Array.from({ length: 13 }, (_, i) => `M${i * 100} 450 v70`).join(' ')}" stroke="#dcd0ea" stroke-width="3"/>
+  <rect y="516" width="${TOWN_W}" height="4" fill="#d8c8e8"/>
+  ${buildingSVG(60, 250, '#ffd9ec', '#ff9ec7', '🏠 小公主的家', 'door', 'home')}
+  ${buildingSVG(390, 250, '#eadcfb', '#b28ae0', '👗 服飾店', 'door', 'shop')}
+  ${buildingSVG(720, 230, '#ffe9c9', '#ffb37f', '🍰 餐廳', 'soon', 'restaurant')}
+  ${buildingSVG(1000, 210, '#d8f2e4', '#7fd0b0', '💇‍♀️ 美髮店', 'soon', 'salon')}
+  ${heart(185, 210, 1.6, '#ff6fa5')}
+  <svg x="425" y="290" width="50" height="56" viewBox="85 225 190 200">${DRESSES[0].svg('#ff8fc0')}</svg>
+  ${lamp(345)}${lamp(675)}${lamp(965)}
+  ${bush(320)}${bush(700)}${bush(985)}${bush(1200)}
+  ${coins}`;
+}
+
+/* ---------- 家 ---------- */
+function homeSVG() {
+  return `
+  <rect width="480" height="400" fill="#fff3f8"/>
+  <rect y="400" width="480" height="120" fill="#f2d4ae"/>
+  <path d="M0 440 h480 M0 480 h480 M120 400 v120 M300 400 v120 M420 400 v120" stroke="#e3bd90" stroke-width="3"/>
+  <rect x="185" y="76" width="130" height="116" rx="8" fill="#cfe9ff" stroke="#fff" stroke-width="8"/>
+  <circle cx="290" cy="104" r="14" fill="#ffe08a"/>
+  ${cloud(220, 130, .5)}
+  <path d="M185 134 h130 M250 76 v116" stroke="#fff" stroke-width="6"/>
+  <path d="M180 70 Q168 130 182 196 L196 196 Q186 130 196 70 Z" fill="#ff9ec7"/>
+  <path d="M320 70 Q332 130 318 196 L304 196 Q314 130 304 70 Z" fill="#ff9ec7"/>
+  <rect x="172" y="64" width="156" height="10" rx="5" fill="#e078a8"/>
+  ${heart(90, 110, 2, '#ffb0c8')}
+  <rect x="70" y="96" width="42" height="34" rx="6" fill="none" stroke="#e8a0c0" stroke-width="5"/>
+  <g data-act="wardrobe" style="cursor:pointer">
+    <rect x="40" y="170" width="112" height="232" rx="12" fill="#f6bcd8"/>
+    <path d="M96 170 v232" stroke="#e078a8" stroke-width="4"/>
+    <circle cx="86" cy="292" r="5" fill="#fff"/><circle cx="106" cy="292" r="5" fill="#fff"/>
+    <text x="96" y="248" font-size="34" text-anchor="middle">👗</text>
+    <polygon points="${star(96, 152, 13, 5.5)}" fill="#ffd23e"/>
+  </g>
+  <g data-act="bed" style="cursor:pointer">
+    <rect x="318" y="252" width="20" height="150" rx="9" fill="#e8a0c0"/>
+    <rect x="318" y="332" width="150" height="70" rx="12" fill="#f0b4d0"/>
+    <rect x="328" y="318" width="136" height="36" rx="12" fill="#fff"/>
+    <rect x="334" y="306" width="48" height="28" rx="9" fill="#ffe9f4"/>
+    <rect x="382" y="314" width="84" height="60" rx="12" fill="#ff9ec7"/>
+    <circle cx="404" cy="336" r="4" fill="#fff" opacity=".8"/>
+    <circle cx="434" cy="352" r="4" fill="#fff" opacity=".8"/>
+  </g>
+  <g data-act="lamp" style="cursor:pointer">
+    <rect x="272" y="330" width="9" height="72" rx="4" fill="#d0a0c0"/>
+    <ellipse cx="276" cy="402" rx="20" ry="7" fill="#d0a0c0"/>
+    <path d="M254 330 L262 296 L292 296 L299 330 Z" fill="${town.lampOff ? '#c9b8d6' : '#ffd670'}"/>
+  </g>
+  <g data-act="teddy" style="cursor:pointer">
+    <circle cx="158" cy="362" r="10" fill="#c98d5f"/><circle cx="178" cy="362" r="10" fill="#c98d5f"/>
+    <circle cx="168" cy="380" r="15" fill="#c98d5f"/>
+    <circle cx="158" cy="356" r="4" fill="#e8b88a"/><circle cx="178" cy="356" r="4" fill="#e8b88a"/>
+    <circle cx="163" cy="376" r="2" fill="#463a44"/><circle cx="173" cy="376" r="2" fill="#463a44"/>
+    <ellipse cx="168" cy="384" rx="5" ry="4" fill="#e8b88a"/>
+  </g>
+  <ellipse cx="240" cy="462" rx="98" ry="26" fill="#ffd9ec" stroke="#ff9ec7" stroke-width="4"/>`;
+}
+
+/* ---------- 服飾店 ---------- */
+function shopStand(cx, item, isDress) {
+  const owned = !isLocked(item);
+  const art = isDress
+    ? `<svg x="${cx - 45}" y="235" width="90" height="95" viewBox="85 225 190 200">${item.svg('#7fc4f2')}</svg>`
+    : `<svg x="${cx - 42}" y="240" width="84" height="90" viewBox="${item.vb}">${item.svg()}</svg>`;
+  return `
+  <g data-act="buy" data-id="${item.id}" style="cursor:pointer">
+    <rect x="${cx - 52}" y="222" width="104" height="196" rx="14" fill="#fff" opacity=".55"/>
+    <rect x="${cx - 46}" y="340" width="92" height="14" rx="7" fill="#d9b8ea"/>
+    <rect x="${cx - 7}" y="352" width="14" height="44" rx="7" fill="#d9b8ea"/>
+    ${art}
+    <rect x="${cx - 36}" y="392" width="72" height="27" rx="13" fill="#fff" stroke="${owned ? '#7fc98f' : '#eda711'}" stroke-width="2.5"/>
+    ${owned
+      ? `<text x="${cx}" y="411" font-size="14" text-anchor="middle" fill="#4a9e5e">✔ 買過了</text>`
+      : `<circle cx="${cx - 14}" cy="405" r="8" fill="#ffd23e" stroke="#eda711" stroke-width="2"/>
+         <text x="${cx + 10}" y="411" font-size="16" text-anchor="middle" fill="#d09010">${item.price}</text>`}
+  </g>`;
+}
+function shopSVG() {
+  const stardress = DRESSES.find(d => d.id === 'stardress');
+  const catears = ACCS.find(a => a.id === 'catears');
+  const bag = ACCS.find(a => a.id === 'bag');
+  return `
+  <rect width="480" height="400" fill="#f6efff"/>
+  <rect y="400" width="480" height="120" fill="#e8d8f4"/>
+  <path d="M0 445 h480 M0 490 h480" stroke="#d9c4ec" stroke-width="3"/>
+  <rect x="100" y="34" width="280" height="46" rx="23" fill="#ff9ec7"/>
+  <text x="240" y="65" font-size="21" text-anchor="middle" fill="#fff">👗 小小服飾店 👗</text>
+  <g transform="translate(-232 -125)">${PETS.find(p => p.id === 'bunny').svg()}</g>
+  <rect x="14" y="312" width="122" height="16" rx="8" fill="#c9a0e0"/>
+  <rect x="20" y="326" width="110" height="86" rx="9" fill="#d9b8ea"/>
+  ${heart(75, 366, 2, '#ffffff')}
+  <rect x="94" y="282" width="38" height="32" rx="5" fill="#b28ae0"/>
+  <rect x="100" y="290" width="26" height="10" rx="3" fill="#e8d8f4"/>
+  ${shopStand(200, stardress, true)}
+  ${shopStand(310, catears, false)}
+  ${shopStand(415, bag, false)}`;
+}
+
+/* ---------- 場景組裝與遊戲迴圈 ---------- */
+function renderTown() {
+  const scene = $('#scene');
+  let world;
+  if (town.loc === 'street') world = streetSVG();
+  else if (town.loc === 'home') world = homeSVG();
+  else world = shopSVG();
+  const dark = (town.loc === 'home' && town.lampOff)
+    ? `<rect width="480" height="520" fill="#1a1240" opacity=".5" pointer-events="none"/>` : '';
+  scene.innerHTML = `<g id="world">${world}</g><g id="player">${charSVG(town.napping)}</g>${dark}`;
+  document.body.classList.toggle('inside', town.loc !== 'street');
+  updateCam(); updatePlayer();
+}
+function updateCam() {
+  if (town.loc !== 'street') { town.cam = 0; return; }
+  town.cam = clamp(town.x - 240, 0, TOWN_W - 480);
+  const w = document.getElementById('world');
+  if (w) w.setAttribute('transform', `translate(${-town.cam} 0)`);
+}
+function updatePlayer(bob = 0) {
+  const g = document.getElementById('player');
+  if (!g) return;
+  const w = 360 * CHAR_S;
+  const groundY = town.loc === 'street' ? 502 : 508;
+  const px = town.x - w / 2 - town.cam;
+  const py = groundY - 468 * CHAR_S + bob;
+  g.setAttribute('transform', town.facing < 0
+    ? `translate(${px + w} ${py}) scale(${-CHAR_S} ${CHAR_S})`
+    : `translate(${px} ${py}) scale(${CHAR_S} ${CHAR_S})`);
+}
+function townLoop() {
+  if (!townActive) return;
+  const dx = town.tx - town.x;
+  if (Math.abs(dx) > 3 && !town.napping) {
+    town.facing = dx > 0 ? 1 : -1;
+    town.x += Math.sign(dx) * Math.min(3.6, Math.abs(dx));
+    town.phase += 0.3;
+    updateCam();
+    updatePlayer(-Math.abs(Math.sin(town.phase)) * 5);
+  } else if (town.entering) {
+    const dest = town.entering;
+    town.entering = null;
+    doorSound();
+    town.loc = dest;
+    town.x = town.tx = 240;
+    renderTown();
+  }
+}
+function spawnCoins() {
+  town.coinSpots = [];
+  for (let i = 0; i < 3; i++) town.coinSpots.push(90 + Math.random() * (TOWN_W - 180));
+}
+function handleAct(d) {
+  if (d.act === 'door') { town.tx = +d.x; town.entering = d.loc; }
+  else if (d.act === 'soon') { town.tx = +d.x; doorSound(); showBubble('這裡快開幕了，敬請期待 🔨'); }
+  else if (d.act === 'coin') {
+    town.coinSpots.splice(+d.i, 1);
+    state.coins = (state.coins || 0) + 2;
+    saveState(); coinsUI(); ding(); burst(4);
+    renderTown();
+  }
+  else if (d.act === 'wardrobe') { doorSound(); setTown(false); showBubble('歡迎回到衣櫥 💕'); }
+  else if (d.act === 'bed') { town.napping = true; renderTown(); lullaby(); zzz(); }
+  else if (d.act === 'lamp') { town.lampOff = !town.lampOff; tone(520, 520, .06); renderTown(); }
+  else if (d.act === 'teddy') { showBubble('🧸 抱抱！'); pop(); burst(5); }
+  else if (d.act === 'buy') { buyItem(d.id); }
+}
+function buyItem(id) {
+  const item = [...DRESSES, ...ACCS].find(i => i.id === id);
+  if (!item) return;
+  if (!isLocked(item)) { showBubble('已經買過囉 ✔'); pop(); return; }
+  if ((state.coins || 0) >= item.price) {
+    state.coins -= item.price;
+    state.owned.push(item.id);
+    if (DRESSES.includes(item)) state.dress = item.id;
+    else if (!state.accs.includes(item.id)) state.accs.push(item.id);
+    saveState(); coinsUI(); chaching(); burst(12);
+    renderTown();
+    showBubble(item.name + ' 買到了，直接穿上囉 💕');
+  } else {
+    tone(300, 220, .18);
+    showBubble(`還差 ${item.price - state.coins} 個金幣，去街上找找 🪙`);
+  }
+}
+function zzz() {
+  clearInterval(zzzTimer);
+  zzzTimer = setInterval(() => {
+    if (!town.napping || !townActive) { clearInterval(zzzTimer); return; }
+    const s = document.createElement('span');
+    s.className = 'spark';
+    s.textContent = '💤';
+    s.style.left = (62 + Math.random() * 10) + '%';
+    s.style.top = (32 + Math.random() * 8) + '%';
+    $('#sparkles').appendChild(s);
+    setTimeout(() => s.remove(), 1300);
+  }, 750);
+}
+function setTown(on) {
+  townActive = on;
+  document.body.classList.toggle('town', on);
+  $('#btn-town').textContent = on ? '👗' : '🏘️';
+  clearInterval(loopTimer);
+  if (on) {
+    $('#scene').setAttribute('viewBox', '0 0 480 520');
+    if (town.loc === 'street' && town.coinSpots.length === 0) spawnCoins();
+    renderTown();
+    loopTimer = setInterval(townLoop, 16);
+  } else {
+    document.body.classList.remove('inside');
+    $('#scene').setAttribute('viewBox', '0 0 360 520');
+    renderScene(); renderPanel();
+  }
+}
+$('#btn-town').addEventListener('click', () => setTown(!townActive));
+$('#btn-back').addEventListener('click', () => {
+  const from = town.loc;
+  town.napping = false;
+  town.loc = 'street';
+  town.x = town.tx = DOOR_X[from] || 200;
+  spawnCoins();
+  doorSound();
+  renderTown();
+});
+$('#scene').addEventListener('click', e => {
+  if (!townActive) return;
+  if (town.napping) { town.napping = false; renderTown(); return; }
+  const t = e.target.closest('[data-act]');
+  if (t) { handleAct(t.dataset); return; }
+  const r = $('#scene').getBoundingClientRect();
+  const vx = (e.clientX - r.left) / r.width * 480;
+  const wx = town.loc === 'street' ? vx + town.cam : vx;
+  town.tx = clamp(wx, 50, town.loc === 'street' ? TOWN_W - 50 : 430);
+});
+
 /* ---------- 啟動 ---------- */
 $('#btn-sound').textContent = muted ? '🔇' : '🔊';
+coinsUI();
 renderScene();
 renderPanel();
 
-if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+// 本機開發不註冊，避免快取蓋掉修改；正式站（GitHub Pages）才啟用離線快取
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
   navigator.serviceWorker.register('sw.js').catch(() => { });
 }
