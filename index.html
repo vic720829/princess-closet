@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>小公主衣櫥</title>
+<meta name="theme-color" content="#ff9ec7">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="小公主衣櫥">
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>✨ 小公主衣櫥 ✨</h1>
+  <div class="topbtns">
+    <button id="btn-random" title="隨機造型">🎲</button>
+    <button id="btn-photo" title="拍照留念">📷</button>
+    <button id="btn-sound" title="音效開關">🔊</button>
+  </div>
+</header>
+<main>
+  <div id="stagewrap">
+    <div id="stage">
+      <svg id="scene" viewBox="0 0 360 520" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div id="sparkles"></div>
+    </div>
+  </div>
+  <div id="panel">
+    <nav id="tabs"></nav>
+    <div id="swatches"></div>
+    <div id="items"></div>
+  </div>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
