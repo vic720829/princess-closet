@@ -855,16 +855,16 @@ $('#btn-sound').addEventListener('click', () => {
 });
 
 /* ==================== 小鎮模式 ==================== */
-const TOWN_W = 1240;
+const TOWN_W = 1600;
 const CHAR_S = 0.42;
 let townActive = false;
 let loopTimer = null;
 let zzzTimer = null;
 const town = {
   loc: 'street', x: 185, tx: 185, facing: 1, cam: 0, phase: 0,
-  entering: null, napping: false, eating: false, lampOff: false, coinSpots: []
+  entering: null, napping: false, eating: false, lampOff: false, coinSpots: [], quiz: null
 };
-const DOOR_X = { home: 185, shop: 515, restaurant: 835, salon: 1105 };
+const DOOR_X = { home: 185, shop: 515, restaurant: 835, salon: 1105, school: 1405 };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 function showBubble(msg) {
@@ -964,10 +964,11 @@ function streetSVG() {
   ${buildingSVG(390, 250, '#eadcfb', '#b28ae0', '👗 服飾店', 'door', 'shop')}
   ${buildingSVG(720, 230, '#ffe9c9', '#ffb37f', '🍰 餐廳', 'door', 'restaurant')}
   ${buildingSVG(1000, 210, '#d8f2e4', '#7fd0b0', '💇‍♀️ 美髮店', 'door', 'salon')}
+  ${buildingSVG(1290, 230, '#fdeec0', '#e0a85f', '🏫 小小學校', 'door', 'school')}
   ${heart(185, 210, 1.6, '#ff6fa5')}
   <svg x="425" y="290" width="50" height="56" viewBox="85 225 190 200">${DRESSES[0].svg('#ff8fc0')}</svg>
-  ${lamp(345)}${lamp(675)}${lamp(965)}
-  ${bush(320)}${bush(700)}${bush(985)}${bush(1200)}
+  ${lamp(345)}${lamp(675)}${lamp(965)}${lamp(1250)}
+  ${bush(320)}${bush(700)}${bush(985)}${bush(1245)}${bush(1545)}
   ${coins}`;
 }
 
@@ -1187,7 +1188,117 @@ function salonSVG() {
   ${shopStand(310, buns, 'hair')}`;
 }
 
-/* ---------- 場景組裝與遊戲迴圈 ---------- */
+/* ---------- 學校（小測驗） ---------- */
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function shuffle(a) {
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
+function uniqueDistractors(correct, min, max) {
+  const set = new Set([correct]);
+  let guard = 0;
+  while (set.size < 3 && guard++ < 50) set.add(min + Math.floor(Math.random() * (max - min + 1)));
+  return shuffle([...set]);
+}
+const SHAPES = ['circle', 'square', 'triangle', 'star'];
+function shapeIcon(id, cx, cy, s, color) {
+  if (id === 'circle') return `<circle cx="${cx}" cy="${cy}" r="${18 * s}" fill="${color}"/>`;
+  if (id === 'square') return `<rect x="${cx - 16 * s}" y="${cy - 16 * s}" width="${32 * s}" height="${32 * s}" rx="${4 * s}" fill="${color}"/>`;
+  if (id === 'triangle') return `<polygon points="${cx},${cy - 18 * s} ${cx - 18 * s},${cy + 14 * s} ${cx + 18 * s},${cy + 14 * s}" fill="${color}"/>`;
+  return `<polygon points="${star(cx, cy, 18 * s, 8 * s)}" fill="${color}"/>`;
+}
+function starsGrid(n, cx, cy) {
+  const perRow = 4, rows = Math.ceil(n / perRow);
+  let out = '';
+  for (let i = 0; i < n; i++) {
+    const row = Math.floor(i / perRow), col = i % perRow;
+    const rowCount = Math.min(perRow, n - row * perRow);
+    const x = cx - (rowCount - 1) * 22 + col * 44;
+    const y = cy - (rows - 1) * 22 + row * 44;
+    out += `<polygon points="${star(x, y, 14, 6)}" fill="#ffd23e" stroke="#eda711" stroke-width="1.5"/>`;
+  }
+  return out;
+}
+function genQuiz() {
+  const type = pick(['count', 'add', 'shape']);
+  if (type === 'count') {
+    const n = 2 + Math.floor(Math.random() * 7);
+    return { type, n, choices: uniqueDistractors(n, 1, 9), correct: n, solved: false };
+  }
+  if (type === 'add') {
+    const a = 1 + Math.floor(Math.random() * 5), b = 1 + Math.floor(Math.random() * 4);
+    const sum = a + b;
+    return { type, a, b, choices: uniqueDistractors(sum, Math.max(1, sum - 3), Math.min(9, sum + 3)), correct: sum, solved: false };
+  }
+  const target = pick(SHAPES);
+  const others = shuffle(SHAPES.filter(s => s !== target)).slice(0, 2);
+  return { type, target, color: pick(DRESS_COLORS), choices: shuffle([target, ...others]), correct: target, solved: false };
+}
+function quizBoard(q) {
+  if (!q) return `<text x="240" y="200" font-size="22" text-anchor="middle" fill="#fff">✏️ 點我上課！</text>`;
+  if (q.type === 'count') return `<text x="240" y="150" font-size="18" text-anchor="middle" fill="#fff">數一數，有幾個？</text>${starsGrid(q.n, 240, 210)}`;
+  if (q.type === 'add') return `<text x="240" y="150" font-size="18" text-anchor="middle" fill="#fff">算算看</text><text x="240" y="216" font-size="42" text-anchor="middle" fill="#fff" font-weight="bold">${q.a} + ${q.b} = ?</text>`;
+  return `<text x="240" y="150" font-size="18" text-anchor="middle" fill="#fff">哪一個一樣？</text>${shapeIcon(q.target, 240, 208, 2.1, q.color)}`;
+}
+function quizChoices(q) {
+  if (!q) return '';
+  const xs = [95, 240, 385];
+  return xs.map((cx, i) => {
+    const val = q.choices[i];
+    const inner = q.type === 'shape'
+      ? shapeIcon(val, cx, 355, 1.3, q.color)
+      : `<text x="${cx}" y="365" font-size="30" text-anchor="middle" fill="#5a4636" font-weight="bold">${val}</text>`;
+    return `
+    ${dropShadow(cx + 2, 392, 46, 10, .13)}
+    <g data-act="quiz-answer" data-idx="${i}" style="cursor:pointer">
+      <rect x="${cx - 46}" y="326" width="92" height="66" rx="16" fill="#fff" stroke="#ffb37f" stroke-width="3"/>
+      ${inner}
+    </g>`;
+  }).join('');
+}
+function schoolSVG() {
+  const q = town.quiz;
+  return `
+  <defs><linearGradient id="floorSchool" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fff8e8"/><stop offset="1" stop-color="#f2dfae"/>
+  </linearGradient></defs>
+  <rect width="480" height="400" fill="#fffbf0"/>
+  <rect y="400" width="480" height="120" fill="url(#floorSchool)"/>
+  <path d="M0 445 h480 M0 490 h480" stroke="#e0c078" stroke-width="3" opacity=".6"/>
+  <rect x="90" y="20" width="300" height="46" rx="23" fill="#e0a85f"/>
+  <text x="240" y="51" font-size="21" text-anchor="middle" fill="#fff">🏫 小小學校 🏫</text>
+  <g transform="translate(360 300)">
+    ${dropShadow(28, 90, 34, 9, .13)}
+    <ellipse cx="0" cy="0" rx="30" ry="34" fill="#c9a876"/>
+    <path d="M-24 -30 L-18 -44 L-12 -32 Z" fill="#a8875a"/>
+    <path d="M24 -30 L18 -44 L12 -32 Z" fill="#a8875a"/>
+    <circle cx="-12" cy="-16" r="10" fill="#fff"/><circle cx="12" cy="-16" r="10" fill="#fff"/>
+    <circle cx="-12" cy="-16" r="6" fill="#463a44"/><circle cx="12" cy="-16" r="6" fill="#463a44"/>
+    <circle cx="-12" cy="-16" r="9" fill="none" stroke="#5a4636" stroke-width="2"/>
+    <circle cx="12" cy="-16" r="9" fill="none" stroke="#5a4636" stroke-width="2"/>
+    <path d="M-3 -16 L3 -16" stroke="#5a4636" stroke-width="2"/>
+    <path d="M-4 -8 L0 -2 L4 -8 Z" fill="#ffb347"/>
+    <rect x="-22" y="20" width="44" height="8" rx="4" fill="#7fa8d8"/>
+  </g>
+  ${dropShadow(75, 412, 66, 12, .15)}
+  <path d="M136 312 L146 302 L146 402 L136 412 Z" fill="#c99a4a"/>
+  <rect x="14" y="312" width="122" height="16" rx="8" fill="#e0a85f"/>
+  <rect x="20" y="326" width="110" height="86" rx="9" fill="#f2c97e"/>
+  ${heart(75, 366, 2, '#ffffff')}
+  ${dropShadow(410, 452, 30, 8, .12)}
+  <rect x="384" y="404" width="52" height="34" rx="6" fill="#fff"/>
+  <rect x="392" y="438" width="10" height="20" fill="#e0c078"/><rect x="418" y="438" width="10" height="20" fill="#e0c078"/>
+  <path d="${Array.from({ length: 6 }, (_, i) => `M${390 + i * 8} 404 v34`).join(' ')}" stroke="#dcbf8a" stroke-width="1.5" opacity=".5"/>
+  <g data-act="${q && !q.solved ? '' : 'quiz-start'}" style="cursor:pointer">
+    ${dropShadow(240, 288, 128, 14, .16)}
+    <rect x="112" y="96" width="256" height="176" rx="16" fill="#4a7a5e" stroke="#eadcc0" stroke-width="10"/>
+    ${quizBoard(q)}
+  </g>`;
+}
 function renderTown() {
   const scene = $('#scene');
   let world;
@@ -1195,13 +1306,16 @@ function renderTown() {
   else if (town.loc === 'home') world = homeSVG();
   else if (town.loc === 'restaurant') world = restaurantSVG();
   else if (town.loc === 'salon') world = salonSVG();
+  else if (town.loc === 'school') world = schoolSVG();
   else world = shopSVG();
   const dark = (town.loc === 'home' && town.lampOff)
     ? `<rect width="480" height="520" fill="#1a1240" opacity=".5" pointer-events="none"/>` : '';
   const far = town.loc === 'street' ? farSVG() : '';
+  const overlay = (town.loc === 'school' && town.quiz && !town.quiz.solved) ? quizChoices(town.quiz) : '';
   scene.innerHTML = `<g id="far">${far}</g><g id="world">${world}</g>` +
     `<ellipse id="playerShadow" fill="#3a2a4a" opacity=".22"/>` +
-    `<g id="player">${charSVG(town.napping ? 'sleep' : town.eating ? 'eat' : 'normal')}</g>${dark}`;
+    `<g id="player">${charSVG(town.napping ? 'sleep' : town.eating ? 'eat' : 'normal')}</g>${dark}` +
+    `<g id="overlay">${overlay}</g>`;
   document.body.classList.toggle('inside', town.loc !== 'street');
   updateCam(); updatePlayer();
 }
@@ -1247,6 +1361,7 @@ function townLoop() {
     town.entering = null;
     doorSound();
     town.loc = dest;
+    town.quiz = null;
     town.x = town.tx = 240;
     renderTown();
   }
@@ -1275,6 +1390,26 @@ function handleAct(d) {
     saveState(); snip(); burst(5);
     renderTown();
   }
+  else if (d.act === 'quiz-start') { clearTimeout(quizTimer); town.quiz = genQuiz(); renderTown(); pop(); }
+  else if (d.act === 'quiz-answer') { answerQuiz(+d.idx); }
+}
+function answerQuiz(idx) {
+  const q = town.quiz;
+  if (!q || q.solved) return;
+  const val = q.choices[idx];
+  if (val === q.correct) {
+    q.solved = true;
+    const reward = 5;
+    state.coins = (state.coins || 0) + reward;
+    saveState(); coinsUI(); chaching(); burst(14);
+    showBubble('答對了！+' + reward + ' 金幣 🎉');
+    renderTown();
+    clearTimeout(quizTimer);
+    quizTimer = setTimeout(() => { town.quiz = null; if (townActive) renderTown(); }, 1400);
+  } else {
+    tone(300, 220, .15);
+    showBubble('再想想看，你可以的 💪');
+  }
 }
 function buyItem(id) {
   const item = [...DRESSES, ...ACCS, ...HAIRS].find(i => i.id === id);
@@ -1295,6 +1430,7 @@ function buyItem(id) {
   }
 }
 let eatTimer = null;
+let quizTimer = null;
 function chomp() {
   tone(240, 180, .08);
   setTimeout(() => tone(260, 200, .08), 140);
@@ -1357,6 +1493,7 @@ $('#btn-town').addEventListener('click', () => setTown(!townActive));
 $('#btn-back').addEventListener('click', () => {
   const from = town.loc;
   town.napping = false;
+  town.quiz = null;
   town.loc = 'street';
   town.x = town.tx = DOOR_X[from] || 200;
   spawnCoins();
