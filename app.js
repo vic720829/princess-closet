@@ -137,6 +137,25 @@ const HAIRS = [
     back: c => `<path d="M90 130 Q60 42 180 38 Q300 42 270 130 L276 196 Q280 238 234 232 L126 232 Q80 238 84 196 Z" fill="${c}"/>
       <circle cx="112" cy="224" r="16" fill="${c}"/><circle cx="248" cy="224" r="16" fill="${c}"/>`,
     front: c => bangs(c) + `<rect x="228" y="88" width="36" height="8" rx="4" transform="rotate(22 246 92)" fill="#ffd23e"/>`
+  },
+  {
+    id: 'braid', name: '公主編髮', price: 12,
+    back: c => {
+      const d = shade(c, .78);
+      return `<path d="M92 140 Q64 44 180 40 Q296 44 268 140 L284 308 Q290 350 254 356 L106 356 Q70 350 76 308 Z" fill="${c}"/>
+      <path d="M150 170 L166 178 M146 200 L164 208 M144 230 L162 238 M142 260 L160 268 M140 290 L158 298 M140 320 L156 326" stroke="${d}" stroke-width="3" opacity=".55" stroke-linecap="round"/>
+      <path d="M210 170 L194 178 M214 200 L196 208 M216 230 L198 238 M218 260 L200 268 M220 290 L202 298 M220 320 L204 326" stroke="${d}" stroke-width="3" opacity=".55" stroke-linecap="round"/>
+      <circle cx="180" cy="330" r="9" fill="#ff7fb2"/>
+      <path d="M180 330 Q170 322 164 330 Q170 338 180 330 Z M180 330 Q190 322 196 330 Q190 338 180 330 Z" fill="#ff9ec7"/>`;
+    },
+    front: c => bangs(c)
+  },
+  {
+    id: 'buns', name: '泡泡雙丸子', price: 16,
+    back: c => `<circle cx="122" cy="76" r="26" fill="${c}"/><circle cx="238" cy="76" r="26" fill="${c}"/>
+      <path d="M122 100 Q116 130 108 152" stroke="${c}" stroke-width="18" fill="none" stroke-linecap="round"/>
+      <path d="M238 100 Q244 130 252 152" stroke="${c}" stroke-width="18" fill="none" stroke-linecap="round"/>`,
+    front: c => bangs(c) + `<rect x="106" y="92" width="32" height="9" rx="4.5" fill="#ff7fb2"/><rect x="222" y="92" width="32" height="9" rx="4.5" fill="#ff7fb2"/>`
   }
 ];
 
@@ -795,7 +814,7 @@ $('#items').addEventListener('click', e => {
 $('#btn-random').addEventListener('click', () => {
   const pick = a => a[Math.floor(Math.random() * a.length)];
   const ownedOnly = a => a.filter(i => !isLocked(i));
-  state.hair = pick(HAIRS).id;
+  state.hair = pick(ownedOnly(HAIRS)).id;
   state.hairColor = pick(HAIR_COLORS);
   state.dress = pick(ownedOnly(DRESSES)).id;
   state.dressColor = pick(DRESS_COLORS);
@@ -944,7 +963,7 @@ function streetSVG() {
   ${buildingSVG(60, 250, '#ffd9ec', '#ff9ec7', '🏠 小公主的家', 'door', 'home')}
   ${buildingSVG(390, 250, '#eadcfb', '#b28ae0', '👗 服飾店', 'door', 'shop')}
   ${buildingSVG(720, 230, '#ffe9c9', '#ffb37f', '🍰 餐廳', 'door', 'restaurant')}
-  ${buildingSVG(1000, 210, '#d8f2e4', '#7fd0b0', '💇‍♀️ 美髮店', 'soon', 'salon')}
+  ${buildingSVG(1000, 210, '#d8f2e4', '#7fd0b0', '💇‍♀️ 美髮店', 'door', 'salon')}
   ${heart(185, 210, 1.6, '#ff6fa5')}
   <svg x="425" y="290" width="50" height="56" viewBox="85 225 190 200">${DRESSES[0].svg('#ff8fc0')}</svg>
   ${lamp(345)}${lamp(675)}${lamp(965)}
@@ -1012,10 +1031,12 @@ function homeSVG() {
 }
 
 /* ---------- 服飾店 ---------- */
-function shopStand(cx, item, isDress) {
+function shopStand(cx, item, kind) {
   const owned = !isLocked(item);
-  const art = isDress
+  const art = kind === 'dress'
     ? `<svg x="${cx - 45}" y="235" width="90" height="95" viewBox="85 225 190 200">${item.svg('#7fc4f2')}</svg>`
+    : kind === 'hair'
+    ? `<svg x="${cx - 45}" y="228" width="90" height="94" viewBox="20 10 320 330">${item.back('#8a5a3a')}<ellipse cx="180" cy="140" rx="90" ry="85" fill="${SKIN}"/>${item.front('#8a5a3a')}</svg>`
     : `<svg x="${cx - 42}" y="240" width="84" height="90" viewBox="${item.vb}">${item.svg()}</svg>`;
   return `
   ${dropShadow(cx + 4, 420, 54, 12, .15)}
@@ -1053,9 +1074,9 @@ function shopSVG() {
   ${heart(75, 366, 2, '#ffffff')}
   <rect x="94" y="282" width="38" height="32" rx="5" fill="#b28ae0"/>
   <rect x="100" y="290" width="26" height="10" rx="3" fill="#e8d8f4"/>
-  ${shopStand(200, stardress, true)}
-  ${shopStand(310, catears, false)}
-  ${shopStand(415, bag, false)}`;
+  ${shopStand(200, stardress, 'dress')}
+  ${shopStand(310, catears, 'acc')}
+  ${shopStand(415, bag, 'acc')}`;
 }
 
 /* ---------- 餐廳 ---------- */
@@ -1112,6 +1133,60 @@ function restaurantSVG() {
   ${foodStand(415, donut)}`;
 }
 
+/* ---------- 美髮店 ---------- */
+function colorDot(cx, cy, c) {
+  const on = state.hairColor === c;
+  return `<g data-act="haircolor" data-color="${c}" style="cursor:pointer">
+    <circle cx="${cx}" cy="${cy}" r="14" fill="${c}" stroke="#fff" stroke-width="3"/>
+    ${on ? `<circle cx="${cx}" cy="${cy}" r="18" fill="none" stroke="#ff6fa5" stroke-width="3"/>` : ''}
+  </g>`;
+}
+function salonSVG() {
+  const braid = HAIRS.find(h => h.id === 'braid');
+  const buns = HAIRS.find(h => h.id === 'buns');
+  return `
+  <defs><linearGradient id="floorSalon" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#e4f7ec"/><stop offset="1" stop-color="#bfe8d2"/>
+  </linearGradient></defs>
+  <rect width="480" height="400" fill="#f2fdf6"/>
+  <rect y="400" width="480" height="120" fill="url(#floorSalon)"/>
+  <path d="M0 445 h480 M0 490 h480" stroke="#9fd6b8" stroke-width="3" opacity=".6"/>
+  <rect x="90" y="34" width="300" height="46" rx="23" fill="#7fd0b0"/>
+  <text x="240" y="65" font-size="21" text-anchor="middle" fill="#fff">💇‍♀️ 小小美髮店 💇‍♀️</text>
+  <g transform="translate(14 60)">
+    <ellipse cx="60" cy="220" rx="38" ry="34" fill="#7ec8e3"/>
+    <circle cx="60" cy="170" r="30" fill="#7ec8e3"/>
+    <path d="M40 150 L30 130 L48 140 Z" fill="#5fa8c8"/>
+    <circle cx="52" cy="166" r="4" fill="#463a44"/><circle cx="68" cy="166" r="4" fill="#463a44"/>
+    <path d="M56 176 L64 176 L60 182 Z" fill="#ffb347"/>
+    <path d="M20 300 L100 300 L92 330 L28 330 Z" fill="#fff"/>
+    ${heart(60, 314, 1.2, '#7ec8e3')}
+    <g transform="translate(92 210) rotate(25)">
+      <path d="M0 0 L14 4 M0 0 L14 -4" stroke="#c0c0c8" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="0" cy="0" r="3" fill="#8a8a94"/>
+    </g>
+  </g>
+  ${dropShadow(75, 412, 66, 12, .15)}
+  <path d="M136 312 L146 302 L146 402 L136 412 Z" fill="#5fae8a"/>
+  <rect x="14" y="312" width="122" height="16" rx="8" fill="#7fd0b0"/>
+  <rect x="20" y="326" width="110" height="86" rx="9" fill="#a8e6c4"/>
+  ${heart(75, 366, 2, '#ffffff')}
+  ${dropShadow(410, 392, 34, 10, .13)}
+  <ellipse cx="410" cy="118" rx="26" ry="32" fill="#fff" stroke="#c9a8de" stroke-width="6"/>
+  <ellipse cx="404" cy="106" rx="8" ry="14" fill="#fff" opacity=".5"/>
+  <rect x="404" y="150" width="12" height="10" fill="#c9a8de"/>
+  <rect x="392" y="350" width="12" height="42" fill="#c9a0c0"/>
+  <ellipse cx="410" cy="352" rx="34" ry="14" fill="#ff9ec7"/>
+  <ellipse cx="410" cy="342" rx="30" ry="12" fill="#ffb8d4"/>
+  <rect x="398" y="372" width="24" height="20" fill="#c9a0c0"/>
+  <ellipse cx="410" cy="392" rx="22" ry="6" fill="#a87898"/>
+  <rect x="372" y="150" width="76" height="66" rx="12" fill="#fff" opacity=".7"/>
+  ${colorDot(392, 172, HAIR_COLORS[0])}${colorDot(410, 172, HAIR_COLORS[1])}${colorDot(428, 172, HAIR_COLORS[2])}
+  ${colorDot(392, 198, HAIR_COLORS[3])}${colorDot(410, 198, HAIR_COLORS[4])}${colorDot(428, 198, HAIR_COLORS[5])}
+  ${shopStand(200, braid, 'hair')}
+  ${shopStand(310, buns, 'hair')}`;
+}
+
 /* ---------- 場景組裝與遊戲迴圈 ---------- */
 function renderTown() {
   const scene = $('#scene');
@@ -1119,6 +1194,7 @@ function renderTown() {
   if (town.loc === 'street') world = streetSVG();
   else if (town.loc === 'home') world = homeSVG();
   else if (town.loc === 'restaurant') world = restaurantSVG();
+  else if (town.loc === 'salon') world = salonSVG();
   else world = shopSVG();
   const dark = (town.loc === 'home' && town.lampOff)
     ? `<rect width="480" height="520" fill="#1a1240" opacity=".5" pointer-events="none"/>` : '';
@@ -1194,15 +1270,21 @@ function handleAct(d) {
   else if (d.act === 'teddy') { showBubble('🧸 抱抱！'); pop(); burst(5); }
   else if (d.act === 'buy') { buyItem(d.id); }
   else if (d.act === 'food') { eatFood(d.id); }
+  else if (d.act === 'haircolor') {
+    state.hairColor = d.color;
+    saveState(); snip(); burst(5);
+    renderTown();
+  }
 }
 function buyItem(id) {
-  const item = [...DRESSES, ...ACCS].find(i => i.id === id);
+  const item = [...DRESSES, ...ACCS, ...HAIRS].find(i => i.id === id);
   if (!item) return;
   if (!isLocked(item)) { showBubble('已經買過囉 ✔'); pop(); return; }
   if ((state.coins || 0) >= item.price) {
     state.coins -= item.price;
     state.owned.push(item.id);
     if (DRESSES.includes(item)) state.dress = item.id;
+    else if (HAIRS.includes(item)) state.hair = item.id;
     else if (!state.accs.includes(item.id)) state.accs.push(item.id);
     saveState(); coinsUI(); chaching(); burst(12);
     renderTown();
@@ -1217,6 +1299,10 @@ function chomp() {
   tone(240, 180, .08);
   setTimeout(() => tone(260, 200, .08), 140);
   setTimeout(() => tone(280, 220, .1), 280);
+}
+function snip() {
+  tone(1200, 1600, .05);
+  setTimeout(() => tone(1000, 1400, .05), 90);
 }
 function eatFood(id) {
   const food = FOODS.find(f => f.id === id);
