@@ -855,16 +855,17 @@ $('#btn-sound').addEventListener('click', () => {
 });
 
 /* ==================== 小鎮模式 ==================== */
-const TOWN_W = 1600;
+const TOWN_W = 1950;
 const CHAR_S = 0.42;
 let townActive = false;
 let loopTimer = null;
 let zzzTimer = null;
 const town = {
   loc: 'street', x: 185, tx: 185, facing: 1, cam: 0, phase: 0,
-  entering: null, napping: false, eating: false, lampOff: false, coinSpots: [], quiz: null
+  entering: null, napping: false, eating: false, lampOff: false, coinSpots: [], quiz: null,
+  riding: false, ridePhase: 0, balloons: [false, false, false, false], balloonColors: []
 };
-const DOOR_X = { home: 185, shop: 515, restaurant: 835, salon: 1105, school: 1405 };
+const DOOR_X = { home: 185, shop: 515, restaurant: 835, salon: 1105, school: 1405, park: 1740 };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 function showBubble(msg) {
@@ -965,10 +966,11 @@ function streetSVG() {
   ${buildingSVG(720, 230, '#ffe9c9', '#ffb37f', '🍰 餐廳', 'door', 'restaurant')}
   ${buildingSVG(1000, 210, '#d8f2e4', '#7fd0b0', '💇‍♀️ 美髮店', 'door', 'salon')}
   ${buildingSVG(1290, 230, '#fdeec0', '#e0a85f', '🏫 小小學校', 'door', 'school')}
+  ${buildingSVG(1600, 280, '#ffe3ec', '#ff6f91', '🎡 遊樂園', 'door', 'park')}
   ${heart(185, 210, 1.6, '#ff6fa5')}
   <svg x="425" y="290" width="50" height="56" viewBox="85 225 190 200">${DRESSES[0].svg('#ff8fc0')}</svg>
-  ${lamp(345)}${lamp(675)}${lamp(965)}${lamp(1250)}
-  ${bush(320)}${bush(700)}${bush(985)}${bush(1245)}${bush(1545)}
+  ${lamp(345)}${lamp(675)}${lamp(965)}${lamp(1250)}${lamp(1560)}
+  ${bush(320)}${bush(700)}${bush(985)}${bush(1245)}${bush(1900)}
   ${coins}`;
 }
 
@@ -1299,6 +1301,119 @@ function schoolSVG() {
     ${quizBoard(q)}
   </g>`;
 }
+
+/* ---------- 遊樂園 ---------- */
+const HORSE_BASE = [
+  { x: 78, y: 322, s: .82 },
+  { x: 130, y: 336, s: 1 },
+  { x: 182, y: 322, s: .82 }
+];
+const HORSE_COLORS = ['#ff9ec7', '#7fc4f2', '#ffd670'];
+const BALLOON_SPOTS = [
+  { x: 300, y: 140 }, { x: 350, y: 118 }, { x: 400, y: 140 }, { x: 445, y: 118 }
+];
+function ponyIcon(color) {
+  const d = shade(color, .8);
+  return `<g>
+    <ellipse cx="0" cy="0" rx="16" ry="11" fill="${color}"/>
+    <circle cx="16" cy="-6" r="7" fill="${color}"/>
+    <path d="M10 -14 L14 -21 L18 -13 Z" fill="${d}"/>
+    <path d="M-14 -8 Q-21 -3 -13 3" stroke="${d}" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <line x1="-8" y1="9" x2="-8" y2="21" stroke="${d}" stroke-width="4" stroke-linecap="round"/>
+    <line x1="8" y1="9" x2="8" y2="21" stroke="${d}" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="19" cy="-7" r="1.5" fill="#463a44"/>
+    <path d="M18 -2 L22 2 Z" stroke="#e0384f" stroke-width="1.5" stroke-linecap="round"/>
+  </g>`;
+}
+function balloonIcon(cx, cy, color) {
+  return `
+  <line x1="${cx}" y1="${cy + 22}" x2="${cx - 6}" y2="${cy + 68}" stroke="#c9a0c0" stroke-width="2"/>
+  <ellipse cx="${cx}" cy="${cy}" rx="17" ry="21" fill="${color}"/>
+  <path d="M${cx - 4} ${cy + 19} L${cx} ${cy + 25} L${cx + 4} ${cy + 19} Z" fill="${color}"/>
+  <ellipse cx="${cx - 6}" cy="${cy - 8}" rx="5" ry="7" fill="#fff" opacity=".4"/>`;
+}
+function carouselSVG() {
+  const stripes = Array.from({ length: 6 }, (_, i) => {
+    const x0 = 60 + i * 23.3;
+    return `<path d="M${x0} 150 Q${x0 + 12} 108 ${x0 + 23} 150 Z" fill="${i % 2 ? '#ff9ec7' : '#fff'}"/>`;
+  }).join('');
+  const horses = HORSE_BASE.map((h, i) =>
+    `<g id="horse${i}" transform="translate(${h.x} ${h.y}) scale(${h.s})">${ponyIcon(HORSE_COLORS[i])}</g>`
+  ).join('');
+  return `
+  ${dropShadow(130, 380, 92, 20, .15)}
+  <ellipse cx="130" cy="362" rx="88" ry="22" fill="#ffd3e6" stroke="#ff9ec7" stroke-width="4"/>
+  <line x1="130" y1="150" x2="130" y2="345" stroke="#e8a0c0" stroke-width="6"/>
+  ${stripes}
+  <circle cx="130" cy="106" r="9" fill="#ffd23e"/>
+  ${horses}
+  ${dropShadow(130, 400, 42, 10, .13)}
+  <g data-act="carousel-toggle" style="cursor:pointer">
+    <rect x="90" y="372" width="80" height="28" rx="14" fill="#fff" stroke="#ff9ec7" stroke-width="3"/>
+    <text x="130" y="391" font-size="14" text-anchor="middle" fill="#c2557f">${town.riding ? '停下來' : '轉圈圈！'}</text>
+  </g>`;
+}
+function balloonCart() {
+  return town.balloons.map((popped, i) => {
+    if (popped) return '';
+    if (!town.balloonColors[i]) town.balloonColors[i] = pick(DRESS_COLORS);
+    const p = BALLOON_SPOTS[i];
+    return `<g data-act="balloon" data-i="${i}" style="cursor:pointer">${balloonIcon(p.x, p.y, town.balloonColors[i])}</g>`;
+  }).join('') + `
+  ${dropShadow(370, 402, 34, 9, .13)}
+  <rect x="344" y="374" width="52" height="28" rx="6" fill="#ff9ec7"/>
+  <circle cx="356" cy="404" r="7" fill="#c2557f"/><circle cx="384" cy="404" r="7" fill="#c2557f"/>
+  ${heart(370, 388, 1.3, '#ffffff')}`;
+}
+function parkSVG() {
+  return `
+  <defs><linearGradient id="floorPark" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fff0f6"/><stop offset="1" stop-color="#f7cfe0"/>
+  </linearGradient></defs>
+  <rect width="480" height="400" fill="#fff7fb"/>
+  <rect y="400" width="480" height="120" fill="url(#floorPark)"/>
+  <path d="M0 445 h480 M0 490 h480" stroke="#e8a8c4" stroke-width="3" opacity=".6"/>
+  <rect x="90" y="20" width="300" height="46" rx="23" fill="#ff6f91"/>
+  <text x="240" y="51" font-size="21" text-anchor="middle" fill="#fff">🎡 小小遊樂園 🎡</text>
+  ${carouselSVG()}
+  ${balloonCart()}`;
+}
+function updateCarouselBob() {
+  HORSE_BASE.forEach((h, i) => {
+    const el = document.getElementById('horse' + i);
+    if (!el) return;
+    const bob = -6 * Math.sin(town.ridePhase + i * 2);
+    el.setAttribute('transform', `translate(${h.x} ${h.y + bob}) scale(${h.s})`);
+  });
+}
+let carouselSparkleTimer = null;
+function startCarouselSparkles() {
+  clearInterval(carouselSparkleTimer);
+  carouselSparkleTimer = setInterval(() => {
+    if (!town.riding || !townActive || town.loc !== 'park') { clearInterval(carouselSparkleTimer); return; }
+    const s = document.createElement('span');
+    s.className = 'spark';
+    s.textContent = pick(['✨', '🎠', '⭐']);
+    s.style.left = (18 + Math.random() * 32) + '%';
+    s.style.top = (28 + Math.random() * 25) + '%';
+    $('#sparkles').appendChild(s);
+    setTimeout(() => s.remove(), 1300);
+  }, 500);
+}
+function stopCarouselSparkles() { clearInterval(carouselSparkleTimer); }
+function popBalloon(i) {
+  if (town.balloons[i]) return;
+  town.balloons[i] = true;
+  state.coins = (state.coins || 0) + 1;
+  saveState(); coinsUI(); ding(); burst(4);
+  renderTown();
+  setTimeout(() => {
+    town.balloons[i] = false;
+    town.balloonColors[i] = pick(DRESS_COLORS);
+    if (townActive && town.loc === 'park') renderTown();
+  }, 1400 + Math.random() * 900);
+}
+
 function renderTown() {
   const scene = $('#scene');
   let world;
@@ -1307,6 +1422,7 @@ function renderTown() {
   else if (town.loc === 'restaurant') world = restaurantSVG();
   else if (town.loc === 'salon') world = salonSVG();
   else if (town.loc === 'school') world = schoolSVG();
+  else if (town.loc === 'park') world = parkSVG();
   else world = shopSVG();
   const dark = (town.loc === 'home' && town.lampOff)
     ? `<rect width="480" height="520" fill="#1a1240" opacity=".5" pointer-events="none"/>` : '';
@@ -1362,8 +1478,14 @@ function townLoop() {
     doorSound();
     town.loc = dest;
     town.quiz = null;
+    town.riding = false;
+    stopCarouselSparkles();
     town.x = town.tx = 240;
     renderTown();
+  }
+  if (town.loc === 'park' && town.riding) {
+    town.ridePhase += 0.15;
+    updateCarouselBob();
   }
 }
 function spawnCoins() {
@@ -1392,6 +1514,13 @@ function handleAct(d) {
   }
   else if (d.act === 'quiz-start') { clearTimeout(quizTimer); town.quiz = genQuiz(); renderTown(); pop(); }
   else if (d.act === 'quiz-answer') { answerQuiz(+d.idx); }
+  else if (d.act === 'carousel-toggle') {
+    town.riding = !town.riding;
+    if (town.riding) { chime(); startCarouselSparkles(); }
+    else { pop(); stopCarouselSparkles(); }
+    renderTown();
+  }
+  else if (d.act === 'balloon') { popBalloon(+d.i); }
 }
 function answerQuiz(idx) {
   const q = town.quiz;
@@ -1494,6 +1623,8 @@ $('#btn-back').addEventListener('click', () => {
   const from = town.loc;
   town.napping = false;
   town.quiz = null;
+  town.riding = false;
+  stopCarouselSparkles();
   town.loc = 'street';
   town.x = town.tx = DOOR_X[from] || 200;
   spawnCoins();
