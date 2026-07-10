@@ -489,6 +489,14 @@ const FOODS = [
   }
 ];
 
+/* ---------- 房間主題 ---------- */
+const ROOMS = [
+  { id: 'pink', name: '粉紅甜心房', price: 0, wall: '#fff3f8', floor: '#e8bd8a', curtain: '#ff9ec7', wardrobe: '#f6bcd8', bed: '#f0b4d0', pillow: '#ff9ec7', rug: '#ffd9ec' },
+  { id: 'mint', name: '森林小屋房', price: 15, wall: '#eefaf0', floor: '#c9dfc0', curtain: '#7ec86a', wardrobe: '#a8dda0', bed: '#8fd0a0', pillow: '#6fc482', rug: '#cdeecf' },
+  { id: 'sky', name: '海洋泡泡房', price: 18, wall: '#e6f5fc', floor: '#bcd8e6', curtain: '#5fb0e0', wardrobe: '#8fcdf0', bed: '#6fb8e8', pillow: '#4a9edb', rug: '#cdeaf7' },
+  { id: 'lavender', name: '星空夢幻房', price: 20, wall: '#f2ecfb', floor: '#cdbfe8', curtain: '#a688e0', wardrobe: '#c9aef0', bed: '#b090e6', pillow: '#9670d8', rug: '#e2d4f7' }
+];
+
 /* ---------- 場景 ---------- */
 const BGS = [
   {
@@ -647,7 +655,8 @@ const DEFAULT_STATE = {
   dress: 'gown', dressColor: '#ff8fc0',
   shoes: 'flats', shoeColor: '#ff8fc0',
   accs: ['crown'], bg: 'castle', pet: 'none',
-  coins: 30, owned: []
+  coins: 30, owned: [],
+  room: 'pink', ownedRooms: ['pink']
 };
 let state = loadState();
 let curTab = 'dress';
@@ -1014,42 +1023,58 @@ function streetSVG() {
 }
 
 /* ---------- 家 ---------- */
+function roomSwatch(cx, cy, room) {
+  const owned = state.ownedRooms.includes(room.id);
+  const active = state.room === room.id;
+  return `<g data-act="room" data-id="${room.id}" style="cursor:pointer">
+    ${active ? `<circle cx="${cx}" cy="${cy}" r="19" fill="none" stroke="#ff6fa5" stroke-width="3"/>` : ''}
+    <circle cx="${cx}" cy="${cy}" r="15" fill="${room.bed}" stroke="#fff" stroke-width="3"/>
+    ${!owned ? `<circle cx="${cx + 12}" cy="${cy - 12}" r="9" fill="#ffd23e" stroke="#eda711" stroke-width="1.5"/><text x="${cx + 12}" y="${cy - 9}" font-size="9" text-anchor="middle" fill="#8a5510" font-weight="bold">${room.price}</text>` : ''}
+  </g>`;
+}
 function homeSVG() {
+  const room = ROOMS.find(r => r.id === state.room) || ROOMS[0];
+  const floorTop = shade(room.floor, 1.18), floorLine = shade(room.floor, .8);
+  const curtainRail = shade(room.curtain, .78);
+  const wardrobeSide = shade(room.wardrobe, .78), wardrobeTop = shade(room.wardrobe, 1.2);
+  const bedFrame = shade(room.bed, .86), bedSide = shade(room.bed, .78);
+  const pillowSide = shade(room.pillow, .86);
+  const rugStroke = shade(room.rug, .76);
   return `
   <defs><linearGradient id="floorHome" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#f7dcb4"/><stop offset="1" stop-color="#e8bd8a"/>
+    <stop offset="0" stop-color="${floorTop}"/><stop offset="1" stop-color="${room.floor}"/>
   </linearGradient></defs>
-  <rect width="480" height="400" fill="#fff3f8"/>
+  <rect width="480" height="400" fill="${room.wall}"/>
   <rect y="400" width="480" height="120" fill="url(#floorHome)"/>
-  <path d="M0 440 h480 M0 480 h480 M120 400 v120 M300 400 v120 M420 400 v120" stroke="#dba876" stroke-width="3" opacity=".7"/>
+  <path d="M0 440 h480 M0 480 h480 M120 400 v120 M300 400 v120 M420 400 v120" stroke="${floorLine}" stroke-width="3" opacity=".7"/>
   <rect x="185" y="76" width="130" height="116" rx="8" fill="#cfe9ff" stroke="#fff" stroke-width="8"/>
   <circle cx="290" cy="104" r="14" fill="#ffe08a"/>
   ${cloud(220, 130, .5)}
   <path d="M185 134 h130 M250 76 v116" stroke="#fff" stroke-width="6"/>
-  <path d="M180 70 Q168 130 182 196 L196 196 Q186 130 196 70 Z" fill="#ff9ec7"/>
-  <path d="M320 70 Q332 130 318 196 L304 196 Q314 130 304 70 Z" fill="#ff9ec7"/>
-  <rect x="172" y="64" width="156" height="10" rx="5" fill="#e078a8"/>
+  <path d="M180 70 Q168 130 182 196 L196 196 Q186 130 196 70 Z" fill="${room.curtain}"/>
+  <path d="M320 70 Q332 130 318 196 L304 196 Q314 130 304 70 Z" fill="${room.curtain}"/>
+  <rect x="172" y="64" width="156" height="10" rx="5" fill="${curtainRail}"/>
   ${heart(90, 110, 2, '#ffb0c8')}
   <rect x="70" y="96" width="42" height="34" rx="6" fill="none" stroke="#e8a0c0" stroke-width="5"/>
   ${dropShadow(96, 408, 62, 13, .16)}
   <g data-act="wardrobe" style="cursor:pointer">
-    <path d="M152 190 L166 178 L166 402 L152 412 Z" fill="#e078a8"/>
-    <rect x="40" y="170" width="112" height="232" rx="12" fill="#f6bcd8"/>
-    <path d="M40 170 L54 158 L166 158 L152 170 Z" fill="#ffd3e6"/>
-    <path d="M96 170 v232" stroke="#e078a8" stroke-width="4"/>
+    <path d="M152 190 L166 178 L166 402 L152 412 Z" fill="${wardrobeSide}"/>
+    <rect x="40" y="170" width="112" height="232" rx="12" fill="${room.wardrobe}"/>
+    <path d="M40 170 L54 158 L166 158 L152 170 Z" fill="${wardrobeTop}"/>
+    <path d="M96 170 v232" stroke="${wardrobeSide}" stroke-width="4"/>
     <circle cx="86" cy="292" r="5" fill="#fff"/><circle cx="106" cy="292" r="5" fill="#fff"/>
     <text x="96" y="248" font-size="34" text-anchor="middle">👗</text>
     <polygon points="${star(96, 152, 13, 5.5)}" fill="#ffd23e"/>
   </g>
   ${dropShadow(392, 408, 92, 14, .16)}
   <g data-act="bed" style="cursor:pointer">
-    <rect x="318" y="252" width="20" height="150" rx="9" fill="#e8a0c0"/>
-    <rect x="318" y="332" width="150" height="70" rx="12" fill="#f0b4d0"/>
-    <path d="M468 332 L482 322 L482 392 L468 402 Z" fill="#d894b4"/>
+    <rect x="318" y="252" width="20" height="150" rx="9" fill="${bedFrame}"/>
+    <rect x="318" y="332" width="150" height="70" rx="12" fill="${room.bed}"/>
+    <path d="M468 332 L482 322 L482 392 L468 402 Z" fill="${bedSide}"/>
     <rect x="328" y="318" width="136" height="36" rx="12" fill="#fff"/>
     <rect x="334" y="306" width="48" height="28" rx="9" fill="#ffe9f4"/>
-    <rect x="382" y="314" width="84" height="60" rx="12" fill="#ff9ec7"/>
-    <path d="M466 314 L478 304 L478 364 L466 374 Z" fill="#e878a4"/>
+    <rect x="382" y="314" width="84" height="60" rx="12" fill="${room.pillow}"/>
+    <path d="M466 314 L478 304 L478 364 L466 374 Z" fill="${pillowSide}"/>
     <circle cx="404" cy="336" r="4" fill="#fff" opacity=".8"/>
     <circle cx="434" cy="352" r="4" fill="#fff" opacity=".8"/>
   </g>
@@ -1069,7 +1094,12 @@ function homeSVG() {
     <ellipse cx="168" cy="384" rx="5" ry="4" fill="#e8b88a"/>
   </g>
   ${dropShadow(240, 464, 98, 20, .1)}
-  <ellipse cx="240" cy="462" rx="98" ry="26" fill="#ffd9ec" stroke="#ff9ec7" stroke-width="4"/>`;
+  <ellipse cx="240" cy="462" rx="98" ry="26" fill="${room.rug}" stroke="${rugStroke}" stroke-width="4"/>
+  <text x="452" y="34" font-size="20" text-anchor="middle">🎨</text>
+  ${roomSwatch(452, 66, ROOMS[0])}
+  ${roomSwatch(452, 106, ROOMS[1])}
+  ${roomSwatch(452, 146, ROOMS[2])}
+  ${roomSwatch(452, 186, ROOMS[3])}`;
 }
 
 /* ---------- 服飾店 ---------- */
@@ -1546,6 +1576,7 @@ function handleAct(d) {
   else if (d.act === 'bed') { town.napping = true; renderTown(); lullaby(); zzz(); completeTask('home'); }
   else if (d.act === 'lamp') { town.lampOff = !town.lampOff; tone(520, 520, .06); renderTown(); }
   else if (d.act === 'teddy') { showBubble('🧸 抱抱！'); pop(); burst(5); }
+  else if (d.act === 'room') { pickRoom(d.id); }
   else if (d.act === 'buy') { buyItem(d.id); }
   else if (d.act === 'food') { eatFood(d.id); }
   else if (d.act === 'haircolor') {
@@ -1580,6 +1611,28 @@ function answerQuiz(idx) {
   } else {
     tone(300, 220, .15);
     showBubble('再想想看，你可以的 💪');
+  }
+}
+function pickRoom(id) {
+  const room = ROOMS.find(r => r.id === id);
+  if (!room) return;
+  if (state.room === id) { showBubble('已經是這個房間囉 💕'); pop(); return; }
+  if (state.ownedRooms.includes(id)) {
+    state.room = id;
+    saveState(); pop(); burst(6);
+    renderTown();
+    return;
+  }
+  if ((state.coins || 0) >= room.price) {
+    state.coins -= room.price;
+    state.ownedRooms.push(id);
+    state.room = id;
+    saveState(); coinsUI(); chaching(); burst(12);
+    renderTown();
+    showBubble(room.name + ' 佈置好了！💕');
+  } else {
+    tone(300, 220, .18);
+    showBubble(`還差 ${room.price - state.coins} 個金幣，去街上找找 🪙`);
   }
 }
 function buyItem(id) {
