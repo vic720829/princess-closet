@@ -1419,6 +1419,13 @@ function uniqueDistractors(correct, min, max) {
   return shuffle([...set]);
 }
 const SHAPES = ['circle', 'square', 'triangle', 'star'];
+const ENGLISH_WORDS = [
+  { word: 'CAT', emoji: '🐱' }, { word: 'DOG', emoji: '🐶' }, { word: 'SUN', emoji: '☀️' },
+  { word: 'MOON', emoji: '🌙' }, { word: 'STAR', emoji: '⭐' }, { word: 'FISH', emoji: '🐟' },
+  { word: 'BIRD', emoji: '🐦' }, { word: 'TREE', emoji: '🌳' }, { word: 'CAKE', emoji: '🎂' },
+  { word: 'BOOK', emoji: '📖' }, { word: 'BALL', emoji: '⚽' }, { word: 'DUCK', emoji: '🦆' },
+  { word: 'FROG', emoji: '🐸' }, { word: 'MILK', emoji: '🥛' }, { word: 'BEAR', emoji: '🐻' }
+];
 function shapeIcon(id, cx, cy, s, color) {
   if (id === 'circle') return `<circle cx="${cx}" cy="${cy}" r="${18 * s}" fill="${color}"/>`;
   if (id === 'square') return `<rect x="${cx - 16 * s}" y="${cy - 16 * s}" width="${32 * s}" height="${32 * s}" rx="${4 * s}" fill="${color}"/>`;
@@ -1438,7 +1445,7 @@ function starsGrid(n, cx, cy) {
   return out;
 }
 function genQuiz() {
-  const type = pick(['count', 'add', 'shape']);
+  const type = pick(['count', 'add', 'shape', 'english']);
   if (type === 'count') {
     const n = 2 + Math.floor(Math.random() * 7);
     return { type, n, choices: uniqueDistractors(n, 1, 9), correct: n, solved: false };
@@ -1448,6 +1455,11 @@ function genQuiz() {
     const sum = a + b;
     return { type, a, b, choices: uniqueDistractors(sum, Math.max(1, sum - 3), Math.min(9, sum + 3)), correct: sum, solved: false };
   }
+  if (type === 'english') {
+    const target = pick(ENGLISH_WORDS);
+    const others = shuffle(ENGLISH_WORDS.filter(w => w.word !== target.word)).slice(0, 2);
+    return { type, emoji: target.emoji, choices: shuffle([target.word, ...others.map(o => o.word)]), correct: target.word, solved: false };
+  }
   const target = pick(SHAPES);
   const others = shuffle(SHAPES.filter(s => s !== target)).slice(0, 2);
   return { type, target, color: pick(DRESS_COLORS), choices: shuffle([target, ...others]), correct: target, solved: false };
@@ -1456,6 +1468,7 @@ function quizBoard(q) {
   if (!q) return `<text x="240" y="200" font-size="22" text-anchor="middle" fill="#fff">✏️ 點我上課！</text>`;
   if (q.type === 'count') return `<text x="240" y="150" font-size="18" text-anchor="middle" fill="#fff">數一數，有幾個？</text>${starsGrid(q.n, 240, 210)}`;
   if (q.type === 'add') return `<text x="240" y="150" font-size="18" text-anchor="middle" fill="#fff">算算看</text><text x="240" y="216" font-size="42" text-anchor="middle" fill="#fff" font-weight="bold">${q.a} + ${q.b} = ?</text>`;
+  if (q.type === 'english') return `<text x="240" y="140" font-size="18" text-anchor="middle" fill="#fff">英文小教室：這是什麼？</text><text x="240" y="228" font-size="66" text-anchor="middle">${q.emoji}</text>`;
   return `<text x="240" y="150" font-size="18" text-anchor="middle" fill="#fff">哪一個一樣？</text>${shapeIcon(q.target, 240, 208, 2.1, q.color)}`;
 }
 function quizChoices(q) {
@@ -1465,6 +1478,8 @@ function quizChoices(q) {
     const val = q.choices[i];
     const inner = q.type === 'shape'
       ? shapeIcon(val, cx, 355, 1.3, q.color)
+      : q.type === 'english'
+      ? `<text x="${cx}" y="362" font-size="21" text-anchor="middle" fill="#5a4636" font-weight="bold">${val}</text>`
       : `<text x="${cx}" y="365" font-size="30" text-anchor="middle" fill="#5a4636" font-weight="bold">${val}</text>`;
     return `
     ${dropShadow(cx + 2, 392, 46, 10, .13)}
