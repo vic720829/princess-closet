@@ -1444,17 +1444,53 @@ function starsGrid(n, cx, cy) {
   }
   return out;
 }
+const MATH_TIERS = [
+  { id: 'easy', label: '簡單', weight: 4, reward: 4, ops: ['+'] },
+  { id: 'normal', label: '一般', weight: 3, reward: 6, ops: ['+', '-'] },
+  { id: 'hard', label: '困難', weight: 2, reward: 8, ops: ['+', '-', '×'] },
+  { id: 'expert', label: '高級', weight: 1, reward: 10, ops: ['+', '-', '×'] }
+];
+function pickWeighted(list) {
+  const total = list.reduce((s, x) => s + x.weight, 0);
+  let r = Math.random() * total;
+  for (const item of list) { if ((r -= item.weight) < 0) return item; }
+  return list[list.length - 1];
+}
+function genMath() {
+  const rnd = n => Math.floor(Math.random() * n);
+  const tier = pickWeighted(MATH_TIERS);
+  const op = pick(tier.ops);
+  let a, b, correct;
+  if (op === '+') {
+    if (tier.id === 'easy') { a = 1 + rnd(5); b = 1 + rnd(4); }
+    else if (tier.id === 'normal') { a = 1 + rnd(10); b = 1 + rnd(10); }
+    else if (tier.id === 'hard') { a = 1 + rnd(20); b = 1 + rnd(20); }
+    else { a = 1 + rnd(30); b = 1 + rnd(30); }
+    correct = a + b;
+  } else if (op === '-') {
+    const hi = tier.id === 'normal' ? 10 : tier.id === 'hard' ? 20 : 30;
+    a = 2 + rnd(hi);
+    b = 1 + rnd(Math.min(a - 1, hi));
+    correct = a - b;
+  } else {
+    if (tier.id === 'hard') { a = 2 + rnd(4); b = 1 + rnd(9); }
+    else { a = 2 + rnd(8); b = 2 + rnd(8); }
+    correct = a * b;
+  }
+  const spread = Math.max(3, Math.round(correct * .25));
+  return {
+    type: 'math', tierLabel: tier.label, op, a, b, reward: tier.reward,
+    choices: uniqueDistractors(correct, Math.max(0, correct - spread), correct + spread),
+    correct, solved: false
+  };
+}
 function genQuiz() {
-  const type = pick(['count', 'add', 'shape', 'english']);
+  const type = pick(['count', 'math', 'shape', 'english']);
   if (type === 'count') {
     const n = 2 + Math.floor(Math.random() * 7);
-    return { type, n, choices: uniqueDistractors(n, 1, 9), correct: n, solved: false };
+    return { type, n, reward: 5, choices: uniqueDistractors(n, 1, 9), correct: n, solved: false };
   }
-  if (type === 'add') {
-    const a = 1 + Math.floor(Math.random() * 5), b = 1 + Math.floor(Math.random() * 4);
-    const sum = a + b;
-    return { type, a, b, choices: uniqueDistractors(sum, Math.max(1, sum - 3), Math.min(9, sum + 3)), correct: sum, solved: false };
-  }
+  if (type === 'math') return genMath();
   if (type === 'english') {
     const target = pick(ENGLISH_WORDS);
     const others = shuffle(ENGLISH_WORDS.filter(w => w.word !== target.word)).slice(0, 2);
@@ -1467,7 +1503,7 @@ function genQuiz() {
 function quizBoard(q) {
   if (!q) return `<text x="240" y="200" font-size="22" text-anchor="middle" fill="#fff">✏️ 點我上課！</text>`;
   if (q.type === 'count') return `<text x="240" y="150" font-size="18" text-anchor="middle" fill="#fff">數一數，有幾個？</text>${starsGrid(q.n, 240, 210)}`;
-  if (q.type === 'add') return `<text x="240" y="150" font-size="18" text-anchor="middle" fill="#fff">算算看</text><text x="240" y="216" font-size="42" text-anchor="middle" fill="#fff" font-weight="bold">${q.a} + ${q.b} = ?</text>`;
+  if (q.type === 'math') return `<text x="240" y="150" font-size="18" text-anchor="middle" fill="#fff">數學小教室：${q.tierLabel}</text><text x="240" y="222" font-size="40" text-anchor="middle" fill="#fff" font-weight="bold">${q.a} ${q.op} ${q.b} = ?</text>`;
   if (q.type === 'english') return `<text x="240" y="140" font-size="18" text-anchor="middle" fill="#fff">英文小教室：這是什麼？</text><text x="240" y="228" font-size="66" text-anchor="middle">${q.emoji}</text>`;
   return `<text x="240" y="150" font-size="18" text-anchor="middle" fill="#fff">哪一個一樣？</text>${shapeIcon(q.target, 240, 208, 2.1, q.color)}`;
 }
@@ -1760,7 +1796,7 @@ function answerQuiz(idx) {
   const val = q.choices[idx];
   if (val === q.correct) {
     q.solved = true;
-    const reward = 5;
+    const reward = q.reward || 5;
     state.coins = (state.coins || 0) + reward;
     saveState(); coinsUI(); chaching(); burst(14);
     showBubble('答對了！+' + reward + ' 金幣 🎉');
