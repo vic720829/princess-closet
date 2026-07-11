@@ -403,6 +403,14 @@ const ACCS = [
       <rect x="86" y="312" width="52" height="44" rx="12" fill="#ff8fb8"/>
       <rect x="86" y="312" width="52" height="16" rx="8" fill="#e078a8"/>
       ${heart(112, 340, 1.3, '#ffffff')}`
+  },
+  {
+    id: 'parasol', name: '蕾絲陽傘', price: 16, vb: '210 195 100 120',
+    svg: () => `<g transform="rotate(15 260 250)">
+      <line x1="260" y1="250" x2="260" y2="308" stroke="#d4af6a" stroke-width="4"/>
+      <path d="M215 250 Q260 202 305 250 Q290 240 275 250 Q260 240 245 250 Q230 240 215 250 Z" fill="#fff" stroke="#e8d0e8" stroke-width="2"/>
+      <circle cx="260" cy="248" r="4" fill="#d4af6a"/>
+    </g>`
   }
 ];
 
@@ -448,6 +456,39 @@ const PETS = [
       <ellipse cx="315" cy="463" rx="6" ry="4" fill="#fff"/>
       <circle cx="326" cy="450" r="7" fill="#fff"/>
     </g>`
+  },
+  {
+    id: 'puppy', name: '小狗狗', price: 18,
+    svg: () => `<g>
+      <path d="M326 452 Q346 446 342 424" stroke="#d9a066" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <ellipse cx="304" cy="452" rx="21" ry="16" fill="#e8b47a"/>
+      <ellipse cx="286" cy="404" rx="10" ry="18" fill="#c98a4a" transform="rotate(-20 286 404)"/>
+      <ellipse cx="322" cy="404" rx="10" ry="18" fill="#c98a4a" transform="rotate(20 322 404)"/>
+      <circle cx="304" cy="416" r="19" fill="#e8b47a"/>
+      <path d="M295 414 Q298 410 301 414" stroke="#5a4636" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M307 414 Q310 410 313 414" stroke="#5a4636" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="304" cy="424" rx="6" ry="4.5" fill="#463a44"/>
+      <path d="M304 428 Q300 433 296 430 M304 428 Q308 433 312 430" stroke="#5a4636" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="290" cy="428" rx="5" ry="3" fill="#ffb3c4" opacity=".7"/>
+      <ellipse cx="318" cy="428" rx="5" ry="3" fill="#ffb3c4" opacity=".7"/>
+      <ellipse cx="296" cy="462" rx="6" ry="4" fill="#f0c78e"/>
+      <ellipse cx="312" cy="462" rx="6" ry="4" fill="#f0c78e"/>
+    </g>`
+  },
+  {
+    id: 'panda', name: '小熊貓', price: 22,
+    svg: () => `<g>
+      <ellipse cx="304" cy="452" rx="22" ry="16" fill="#fff"/>
+      <circle cx="288" cy="400" r="10" fill="#2c2c2c"/><circle cx="320" cy="400" r="10" fill="#2c2c2c"/>
+      <circle cx="304" cy="416" r="19" fill="#fff"/>
+      <ellipse cx="296" cy="412" rx="7" ry="9" fill="#2c2c2c" transform="rotate(-10 296 412)"/>
+      <ellipse cx="312" cy="412" rx="7" ry="9" fill="#2c2c2c" transform="rotate(10 312 412)"/>
+      <circle cx="296" cy="413" r="2.3" fill="#fff"/><circle cx="312" cy="413" r="2.3" fill="#fff"/>
+      <ellipse cx="304" cy="424" rx="5" ry="4" fill="#2c2c2c"/>
+      <path d="M304 428 Q300 432 297 430 M304 428 Q308 432 311 430" stroke="#2c2c2c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="296" cy="462" rx="6" ry="4" fill="#f0f0f0"/>
+      <ellipse cx="312" cy="462" rx="6" ry="4" fill="#f0f0f0"/>
+    </g>`
   }
 ];
 
@@ -486,6 +527,34 @@ const FOODS = [
       <circle cx="38" cy="38" r="3" fill="#7fc4f2"/><circle cx="62" cy="38" r="3" fill="#ffd23e"/>
       <circle cx="66" cy="52" r="3" fill="#8fdcb8"/><circle cx="34" cy="60" r="3" fill="#ff8fc0"/>
       <circle cx="50" cy="76" r="3" fill="#bf94ea"/><circle cx="60" cy="68" r="3" fill="#7fc4f2"/>`
+  },
+  {
+    id: 'bubbletea', name: '珍珠奶茶', price: 4,
+    svg: () => `
+      <path d="M32 40 L68 40 L60 92 Q50 98 40 92 Z" fill="#fff6ea" opacity=".9"/>
+      <path d="M34 55 L66 55 L60 92 Q50 98 40 92 Z" fill="#d9a066"/>
+      <circle cx="42" cy="82" r="3" fill="#3a2a20"/><circle cx="50" cy="86" r="3" fill="#3a2a20"/><circle cx="58" cy="82" r="3" fill="#3a2a20"/>
+      <circle cx="46" cy="76" r="3" fill="#3a2a20"/><circle cx="54" cy="76" r="3" fill="#3a2a20"/>
+      <rect x="30" y="36" width="40" height="8" rx="3" fill="#ffb3c4"/>
+      <rect x="47" y="12" width="6" height="30" rx="3" fill="#ff8fb8"/>`
+  },
+  {
+    id: 'chips', name: '洋芋片', price: 3,
+    svg: () => `
+      <path d="M28 30 Q50 20 72 30 L66 88 Q50 96 34 88 Z" fill="#ffd23e"/>
+      <path d="M28 30 Q50 20 72 30 L70 40 Q50 30 30 40 Z" fill="#ff9ec7"/>
+      <path d="M34 88 Q50 96 66 88" stroke="#e0a010" stroke-width="2" fill="none"/>
+      <circle cx="50" cy="58" r="12" fill="#fff" opacity=".85"/>
+      <path d="M44 54 Q50 50 56 54 Q56 60 50 64 Q44 60 44 54 Z" fill="#e8a05a"/>`
+  },
+  {
+    id: 'popsicle', name: '冰棒', price: 3,
+    svg: () => `
+      <rect x="46" y="70" width="8" height="26" rx="3" fill="#e8b6d0"/>
+      <path d="M30 30 Q50 18 70 30 L66 74 Q50 82 34 74 Z" fill="#ff8fb8"/>
+      <path d="M30 30 Q50 18 70 30 L68 40 Q50 28 32 40 Z" fill="#fff" opacity=".5"/>
+      <circle cx="42" cy="48" r="3" fill="#fff" opacity=".6"/>
+      <circle cx="58" cy="56" r="3" fill="#fff" opacity=".6"/>`
   }
 ];
 
@@ -830,7 +899,7 @@ $('#btn-random').addEventListener('click', () => {
   state.shoes = pick(SHOES).id;
   state.shoeColor = pick(DRESS_COLORS);
   state.bg = pick(BGS).id;
-  state.pet = pick(PETS).id;
+  state.pet = pick(ownedOnly(PETS)).id;
   state.accs = ownedOnly(ACCS).filter(() => Math.random() < .4).map(a => a.id);
   saveState(); renderScene(); renderPanel();
   burst(14); chime();
@@ -864,7 +933,7 @@ $('#btn-sound').addEventListener('click', () => {
 });
 
 /* ==================== 小鎮模式 ==================== */
-const TOWN_W = 1950;
+const TOWN_W = 2540;
 const CHAR_S = 0.42;
 let townActive = false;
 let loopTimer = null;
@@ -875,7 +944,7 @@ const town = {
   riding: false, ridePhase: 0, balloons: [false, false, false, false], balloonColors: [],
   tasksDone: { home: false, shop: false, restaurant: false, salon: false, school: false, park: false }
 };
-const DOOR_X = { home: 185, shop: 515, restaurant: 835, salon: 1105, school: 1405, park: 1740 };
+const DOOR_X = { home: 185, shop: 515, restaurant: 835, salon: 1105, school: 1405, park: 1740, convenience: 2040, department: 2340 };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 function showBubble(msg) {
@@ -1015,10 +1084,12 @@ function streetSVG() {
   ${buildingSVG(1000, 210, '#d8f2e4', '#7fd0b0', '💇‍♀️ 美髮店', 'door', 'salon')}
   ${buildingSVG(1290, 230, '#fdeec0', '#e0a85f', '🏫 小小學校', 'door', 'school')}
   ${buildingSVG(1600, 280, '#ffe3ec', '#ff6f91', '🎡 遊樂園', 'door', 'park')}
+  ${buildingSVG(1930, 220, '#e8f7e0', '#5cb85c', '🏪 便利商店', 'door', 'convenience')}
+  ${buildingSVG(2210, 260, '#faf3e0', '#d4af6a', '🏬 百貨公司', 'door', 'department')}
   ${heart(185, 210, 1.6, '#ff6fa5')}
   <svg x="425" y="290" width="50" height="56" viewBox="85 225 190 200">${DRESSES[0].svg('#ff8fc0')}</svg>
-  ${lamp(345)}${lamp(675)}${lamp(965)}${lamp(1250)}${lamp(1560)}
-  ${bush(320)}${bush(700)}${bush(985)}${bush(1245)}${bush(1900)}
+  ${lamp(345)}${lamp(675)}${lamp(965)}${lamp(1250)}${lamp(1560)}${lamp(1890)}${lamp(2180)}
+  ${bush(320)}${bush(700)}${bush(985)}${bush(1245)}${bush(2490)}
   ${coins}`;
 }
 
@@ -1109,6 +1180,8 @@ function shopStand(cx, item, kind) {
     ? `<svg x="${cx - 45}" y="235" width="90" height="95" viewBox="85 225 190 200">${item.svg('#7fc4f2')}</svg>`
     : kind === 'hair'
     ? `<svg x="${cx - 45}" y="228" width="90" height="94" viewBox="20 10 320 330">${item.back('#8a5a3a')}<ellipse cx="180" cy="140" rx="90" ry="85" fill="${SKIN}"/>${item.front('#8a5a3a')}</svg>`
+    : kind === 'pet'
+    ? `<svg x="${cx - 40}" y="238" width="80" height="86" viewBox="268 372 78 102">${item.svg()}</svg>`
     : `<svg x="${cx - 42}" y="240" width="84" height="90" viewBox="${item.vb}">${item.svg()}</svg>`;
   return `
   ${dropShadow(cx + 4, 420, 54, 12, .15)}
@@ -1149,6 +1222,41 @@ function shopSVG() {
   ${shopStand(200, stardress, 'dress')}
   ${shopStand(310, catears, 'acc')}
   ${shopStand(415, bag, 'acc')}`;
+}
+
+/* ---------- 百貨公司 ---------- */
+function departmentSVG() {
+  const puppy = PETS.find(p => p.id === 'puppy');
+  const panda = PETS.find(p => p.id === 'panda');
+  const parasol = ACCS.find(a => a.id === 'parasol');
+  return `
+  <defs><linearGradient id="floorDept" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fdf6e4"/><stop offset="1" stop-color="#f0dcae"/>
+  </linearGradient></defs>
+  <rect width="480" height="400" fill="#fffbf0"/>
+  <rect y="400" width="480" height="120" fill="url(#floorDept)"/>
+  <path d="M0 445 h480 M0 490 h480" stroke="#d4af6a" stroke-width="3" opacity=".55"/>
+  <rect x="80" y="34" width="320" height="46" rx="23" fill="#d4af6a"/>
+  <text x="240" y="65" font-size="21" text-anchor="middle" fill="#fff">🏬 百貨公司 🏬</text>
+  <g transform="translate(20 96)">
+    <path d="M-6 20 Q28 -12 62 20 L54 30 Q28 8 2 30 Z" fill="#5aa8bc"/>
+    <circle cx="-6" cy="16" r="6" fill="#7fc4a0"/><circle cx="14" cy="2" r="6" fill="#7fc4a0"/>
+    <circle cx="42" cy="2" r="6" fill="#7fc4a0"/><circle cx="62" cy="16" r="6" fill="#7fc4a0"/>
+    <ellipse cx="28" cy="70" rx="10" ry="34" fill="#4a90a4"/>
+    <circle cx="28" cy="46" r="20" fill="#4a90a4"/>
+    <path d="M22 28 L18 16 L28 24 Z" fill="#3a7a8c"/>
+    <circle cx="20" cy="44" r="4" fill="#463a44"/><circle cx="36" cy="44" r="4" fill="#463a44"/>
+    <circle cx="20" cy="44" r="7" fill="none" stroke="#d4af6a" stroke-width="1.5"/>
+    <path d="M25 52 L31 52 L28 57 Z" fill="#ffb347"/>
+  </g>
+  ${dropShadow(75, 412, 66, 12, .15)}
+  <path d="M136 312 L146 302 L146 402 L136 412 Z" fill="#b8935a"/>
+  <rect x="14" y="312" width="122" height="16" rx="8" fill="#d4af6a"/>
+  <rect x="20" y="326" width="110" height="86" rx="9" fill="#f0dcae"/>
+  ${heart(75, 366, 2, '#ffffff')}
+  ${shopStand(200, puppy, 'pet')}
+  ${shopStand(310, panda, 'pet')}
+  ${shopStand(415, parasol, 'acc')}`;
 }
 
 /* ---------- 餐廳 ---------- */
@@ -1203,6 +1311,41 @@ function restaurantSVG() {
   ${foodStand(200, cake)}
   ${foodStand(310, ice)}
   ${foodStand(415, donut)}`;
+}
+
+/* ---------- 便利商店 ---------- */
+function convenienceSVG() {
+  const tea = FOODS.find(f => f.id === 'bubbletea');
+  const chips = FOODS.find(f => f.id === 'chips');
+  const pop = FOODS.find(f => f.id === 'popsicle');
+  return `
+  <defs><linearGradient id="floorConv" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f0fbe8"/><stop offset="1" stop-color="#cdeab8"/>
+  </linearGradient></defs>
+  <rect width="480" height="400" fill="#f7fdf2"/>
+  <rect y="400" width="480" height="120" fill="url(#floorConv)"/>
+  <path d="M0 445 h480 M0 490 h480" stroke="#a8d898" stroke-width="3" opacity=".6"/>
+  <rect x="90" y="34" width="300" height="46" rx="23" fill="#5cb85c"/>
+  <text x="240" y="65" font-size="21" text-anchor="middle" fill="#fff">🏪 便利商店 🏪</text>
+  <g transform="translate(24 68)">
+    <ellipse cx="8" cy="220" rx="9" ry="16" fill="#c98a4a" transform="rotate(-15 8 220)"/>
+    <ellipse cx="48" cy="220" rx="9" ry="16" fill="#c98a4a" transform="rotate(15 48 220)"/>
+    <circle cx="28" cy="246" r="26" fill="#e8b47a"/>
+    <path d="M6 210 Q28 196 50 210 L46 216 Q28 206 10 216 Z" fill="#5cb85c"/>
+    <circle cx="18" cy="242" r="3" fill="#463a44"/><circle cx="38" cy="242" r="3" fill="#463a44"/>
+    <ellipse cx="28" cy="252" rx="7" ry="5" fill="#463a44"/>
+    <path d="M20 258 Q28 263 36 258" stroke="#463a44" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M4 274 L52 274 L46 306 L10 306 Z" fill="#fff"/>
+    ${heart(28, 290, 1.3, '#5cb85c')}
+  </g>
+  ${dropShadow(75, 412, 66, 12, .15)}
+  <path d="M136 312 L146 302 L146 402 L136 412 Z" fill="#4a9e4a"/>
+  <rect x="14" y="312" width="122" height="16" rx="8" fill="#5cb85c"/>
+  <rect x="20" y="326" width="110" height="86" rx="9" fill="#a8dda0"/>
+  ${heart(75, 366, 2, '#ffffff')}
+  ${foodStand(200, tea)}
+  ${foodStand(310, chips)}
+  ${foodStand(415, pop)}`;
 }
 
 /* ---------- 美髮店 ---------- */
@@ -1493,6 +1636,8 @@ function renderTown() {
   else if (town.loc === 'salon') world = salonSVG();
   else if (town.loc === 'school') world = schoolSVG();
   else if (town.loc === 'park') world = parkSVG();
+  else if (town.loc === 'convenience') world = convenienceSVG();
+  else if (town.loc === 'department') world = departmentSVG();
   else world = shopSVG();
   const dark = (town.loc === 'home' && town.lampOff)
     ? `<rect width="480" height="520" fill="#1a1240" opacity=".5" pointer-events="none"/>` : '';
@@ -1636,7 +1781,7 @@ function pickRoom(id) {
   }
 }
 function buyItem(id) {
-  const item = [...DRESSES, ...ACCS, ...HAIRS].find(i => i.id === id);
+  const item = [...DRESSES, ...ACCS, ...HAIRS, ...PETS].find(i => i.id === id);
   if (!item) return;
   if (!isLocked(item)) { showBubble('已經買過囉 ✔'); pop(); return; }
   if ((state.coins || 0) >= item.price) {
@@ -1644,6 +1789,7 @@ function buyItem(id) {
     state.owned.push(item.id);
     if (DRESSES.includes(item)) state.dress = item.id;
     else if (HAIRS.includes(item)) state.hair = item.id;
+    else if (PETS.includes(item)) state.pet = item.id;
     else if (!state.accs.includes(item.id)) state.accs.push(item.id);
     saveState(); coinsUI(); chaching(); burst(12);
     renderTown();
