@@ -411,6 +411,52 @@ const ACCS = [
       <path d="M215 250 Q260 202 305 250 Q290 240 275 250 Q260 240 245 250 Q230 240 215 250 Z" fill="#fff" stroke="#e8d0e8" stroke-width="2"/>
       <circle cx="260" cy="248" r="4" fill="#d4af6a"/>
     </g>`
+  },
+  {
+    id: 'rainbowclip', name: '彩虹髮夾', gacha: true, weight: 3, rare: false, vb: '78 30 100 70',
+    svg: () => `<g transform="rotate(-10 128 62)">
+      <path d="M98 62 Q128 44 158 62" stroke="#ff8fa3" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <path d="M100 68 Q128 52 156 68" stroke="#ffc48a" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <path d="M102 74 Q128 60 154 74" stroke="#fff3a0" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <circle cx="128" cy="58" r="6" fill="#fff"/>
+    </g>`
+  },
+  {
+    id: 'bowearrings', name: '蝴蝶結耳環', gacha: true, weight: 3, rare: false, vb: '120 130 120 60',
+    svg: () => `<g>
+      <path d="M138 150 Q132 144 126 150 Q132 156 138 150 Z M138 150 Q144 144 150 150 Q144 156 138 150 Z" fill="#ff9ec7"/>
+      <circle cx="138" cy="150" r="3" fill="#e0447e"/>
+      <path d="M222 150 Q216 144 210 150 Q216 156 222 150 Z M222 150 Q228 144 234 150 Q228 156 222 150 Z" fill="#ff9ec7"/>
+      <circle cx="222" cy="150" r="3" fill="#e0447e"/>
+    </g>`
+  },
+  {
+    id: 'scarf', name: '彩色圍巾', gacha: true, weight: 3, rare: false, vb: '145 232 90 70',
+    svg: () => `<g>
+      <path d="M150 240 Q180 254 210 240 L206 258 Q180 270 154 258 Z" fill="#7fc4f2"/>
+      <path d="M170 258 L166 296 L182 292 L178 258 Z" fill="#ffd670"/>
+      <circle cx="170" cy="292" r="4" fill="#ff8fc0"/><circle cx="178" cy="298" r="4" fill="#8fdcb8"/>
+    </g>`
+  },
+  {
+    id: 'diamondcrown', name: '鑽石皇冠', gacha: true, weight: 1, rare: true, vb: '178 0 110 85',
+    svg: () => `<g transform="rotate(14 232 42)">
+      <path d="M195 64 L203 20 L219 42 L232 12 L245 42 L261 20 L269 64 Z" fill="#bfe8ff" stroke="#8fd0f0" stroke-width="3" stroke-linejoin="round"/>
+      <rect x="193" y="60" width="78" height="10" rx="5" fill="#8fd0f0"/>
+      <circle cx="232" cy="16" r="5" fill="#fff" stroke="#8fd0f0" stroke-width="2"/>
+      <circle cx="203" cy="24" r="4" fill="#fff" stroke="#8fd0f0" stroke-width="1.5"/>
+      <circle cx="261" cy="24" r="4" fill="#fff" stroke="#8fd0f0" stroke-width="1.5"/>
+      <path d="M215 40 L220 46 L228 32" stroke="#fff" stroke-width="2" fill="none" opacity=".8"/>
+    </g>`
+  },
+  {
+    id: 'unicornhorn', name: '獨角獸角', gacha: true, weight: 1, rare: true, vb: '110 20 150 80',
+    svg: () => `<g>
+      <path d="M120 90 Q180 40 240 90" stroke="#fff" stroke-width="7" fill="none"/>
+      <path d="M178 46 L172 8 L188 46 Z" fill="#ffe9a8" stroke="#f0c060" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M175 40 L181 40 M174 32 L182 32 M173 24 L183 24" stroke="#f0c060" stroke-width="1.5"/>
+      <circle cx="128" cy="72" r="9" fill="#ffb3c4"/><circle cx="232" cy="72" r="9" fill="#bfe0ff"/>
+    </g>`
   }
 ];
 
@@ -807,10 +853,10 @@ function renderItems() {
   else { list = BGS; isOn = i => state.bg === i.id; }
   box.innerHTML = list.map(i => {
     const lk = isLocked(i);
-    return `<button data-item="${i.id}" class="${isOn(i) ? 'on' : ''}${lk ? ' locked' : ''}">${preview(i, curTab)}<div class="nm">${lk ? '🔒 🪙' + i.price : i.name}</div></button>`;
+    return `<button data-item="${i.id}" class="${isOn(i) ? 'on' : ''}${lk ? ' locked' : ''}">${preview(i, curTab)}<div class="nm">${lk ? (i.gacha ? '🔒 🎰' : '🔒 🪙' + i.price) : i.name}</div></button>`;
   }).join('');
 }
-function isLocked(item) { return !!item.price && !(state.owned || []).includes(item.id); }
+function isLocked(item) { return !!(item.price || item.gacha) && !(state.owned || []).includes(item.id); }
 function renderPanel() { renderTabs(); renderSwatches(); renderItems(); }
 
 /* ---------- 音效 ---------- */
@@ -1225,6 +1271,24 @@ function shopSVG() {
 }
 
 /* ---------- 百貨公司 ---------- */
+const GACHA_PRICE = 8;
+function gachaMachine(cx, cy) {
+  return `
+  ${dropShadow(cx, cy + 88, 40, 10, .15)}
+  <g data-act="gacha" style="cursor:pointer">
+    <rect x="${cx - 34}" y="${cy + 18}" width="68" height="50" rx="8" fill="#ff9ec7"/>
+    <circle cx="${cx}" cy="${cy - 14}" r="42" fill="#bfe8ff" opacity=".55" stroke="#8fd0f0" stroke-width="4"/>
+    <circle cx="${cx - 18}" cy="${cy - 24}" r="8" fill="#ff8fb8"/>
+    <circle cx="${cx + 10}" cy="${cy - 30}" r="7" fill="#ffd670"/>
+    <circle cx="${cx - 4}" cy="${cy - 8}" r="7" fill="#8fdcb8"/>
+    <circle cx="${cx + 16}" cy="${cy - 6}" r="6" fill="#bf94ea"/>
+    <circle cx="${cx - 22}" cy="${cy + 2}" r="6" fill="#7fc4f2"/>
+    <rect x="${cx - 8}" y="${cy + 30}" width="16" height="16" rx="4" fill="#fff"/>
+    <circle cx="${cx + 28}" cy="${cy + 40}" r="9" fill="#e078a8"/>
+    <rect x="${cx + 26}" y="${cy + 30}" width="6" height="14" fill="#e078a8"/>
+    <text x="${cx}" y="${cy + 78}" font-size="13" text-anchor="middle" fill="#c2557f">扭一下 🪙${GACHA_PRICE}</text>
+  </g>`;
+}
 function departmentSVG() {
   const puppy = PETS.find(p => p.id === 'puppy');
   const panda = PETS.find(p => p.id === 'panda');
@@ -1254,6 +1318,7 @@ function departmentSVG() {
   <rect x="14" y="312" width="122" height="16" rx="8" fill="#d4af6a"/>
   <rect x="20" y="326" width="110" height="86" rx="9" fill="#f0dcae"/>
   ${heart(75, 366, 2, '#ffffff')}
+  ${gachaMachine(240, 132)}
   ${shopStand(200, puppy, 'pet')}
   ${shopStand(310, panda, 'pet')}
   ${shopStand(415, parasol, 'acc')}`;
@@ -1677,6 +1742,40 @@ function popBalloon(i) {
     if (townActive && town.loc === 'park') renderTown();
   }, 1400 + Math.random() * 900);
 }
+let gachaTimer = null;
+function playGacha() {
+  if ((state.coins || 0) < GACHA_PRICE) {
+    tone(300, 220, .18);
+    showBubble(`還差 ${GACHA_PRICE - (state.coins || 0)} 個金幣，去街上找找 🪙`);
+    return;
+  }
+  state.coins -= GACHA_PRICE;
+  saveState(); coinsUI();
+  showBubble('轉轉轉... 🎰');
+  tone(700, 1000, .1); tone(600, 900, .1, .12);
+  burst(4);
+  clearTimeout(gachaTimer);
+  gachaTimer = setTimeout(() => {
+    const pool = ACCS.filter(a => a.gacha);
+    const prize = pickWeighted(pool);
+    const isNew = !(state.owned || []).includes(prize.id);
+    if (isNew) {
+      state.owned.push(prize.id);
+      if (!state.accs.includes(prize.id)) state.accs.push(prize.id);
+      saveState();
+      chime(); burst(prize.rare ? 22 : 12);
+      showBubble((prize.rare ? '✨稀有✨ ' : '') + prize.name + ' 到手了！💕');
+    } else {
+      const refund = 4;
+      state.coins += refund;
+      saveState(); coinsUI();
+      pop(); burst(6);
+      showBubble('扭到重複的「' + prize.name + '」，退你 ' + refund + ' 金幣 🪙');
+    }
+    coinsUI();
+    if (townActive) renderTown();
+  }, 700);
+}
 
 function renderTown() {
   const scene = $('#scene');
@@ -1789,6 +1888,7 @@ function handleAct(d) {
     renderTown();
   }
   else if (d.act === 'balloon') { popBalloon(+d.i); }
+  else if (d.act === 'gacha') { playGacha(); }
 }
 function answerQuiz(idx) {
   const q = town.quiz;
