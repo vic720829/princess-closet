@@ -457,6 +457,35 @@ const ACCS = [
       <path d="M175 40 L181 40 M174 32 L182 32 M173 24 L183 24" stroke="#f0c060" stroke-width="1.5"/>
       <circle cx="128" cy="72" r="9" fill="#ffb3c4"/><circle cx="232" cy="72" r="9" fill="#bfe0ff"/>
     </g>`
+  },
+  {
+    id: 'umbrella', name: '雨傘', price: 14, vb: '205 190 110 130',
+    svg: () => `<g transform="rotate(12 260 250)">
+      <line x1="260" y1="250" x2="260" y2="310" stroke="#8a5a3a" stroke-width="4"/>
+      <path d="M212 250 Q260 200 308 250 Q294 242 280 250 Q266 242 252 250 Q238 242 224 250 Q210 258 212 250 Z" fill="#ff8fc0"/>
+      <path d="M260 310 Q252 316 256 322" stroke="#8a5a3a" stroke-width="4" fill="none" stroke-linecap="round"/>
+    </g>`
+  },
+  {
+    id: 'sunglasses', name: '酷炫墨鏡', price: 12, vb: '108 130 140 50',
+    svg: () => `
+      <rect x="128" y="142" width="34" height="22" rx="6" fill="#3a3a44"/>
+      <rect x="198" y="142" width="34" height="22" rx="6" fill="#3a3a44"/>
+      <path d="M162 150 Q180 144 198 150" stroke="#3a3a44" stroke-width="4" fill="none"/>`
+  },
+  {
+    id: 'starglasses', name: '星星眼鏡', price: 14, vb: '105 122 150 65',
+    svg: () => `
+      <polygon points="${star(146, 153, 17, 8)}" fill="#fff" opacity=".3" stroke="#ff9ec7" stroke-width="3"/>
+      <polygon points="${star(214, 153, 17, 8)}" fill="#fff" opacity=".3" stroke="#ff9ec7" stroke-width="3"/>
+      <path d="M163 150 Q180 142 197 150" stroke="#ff9ec7" stroke-width="4" fill="none"/>`
+  },
+  {
+    id: 'heartglasses', name: '愛心眼鏡', price: 14, vb: '108 128 145 55',
+    svg: () => `
+      ${heart(146, 153, 2.9, '#ff9ec7')}${heart(146, 153, 2.3, '#ffffff')}
+      ${heart(214, 153, 2.9, '#ff9ec7')}${heart(214, 153, 2.3, '#ffffff')}
+      <path d="M163 150 Q180 142 197 150" stroke="#e0447e" stroke-width="4" fill="none"/>`
   }
 ];
 
@@ -979,18 +1008,18 @@ $('#btn-sound').addEventListener('click', () => {
 });
 
 /* ==================== 小鎮模式 ==================== */
-const TOWN_W = 2540;
+const TOWN_W = 2840;
 const CHAR_S = 0.42;
 let townActive = false;
 let loopTimer = null;
 let zzzTimer = null;
 const town = {
   loc: 'street', x: 185, tx: 185, facing: 1, cam: 0, phase: 0,
-  entering: null, napping: false, eating: false, lampOff: false, coinSpots: [], quiz: null,
+  entering: null, napping: false, eating: false, lampOff: false, coinSpots: [], quiz: null, weather: 'sunny', canWork: true,
   riding: false, ridePhase: 0, balloons: [false, false, false, false], balloonColors: [],
   tasksDone: { home: false, shop: false, restaurant: false, salon: false, school: false, park: false }
 };
-const DOOR_X = { home: 185, shop: 515, restaurant: 835, salon: 1105, school: 1405, park: 1740, convenience: 2040, department: 2340 };
+const DOOR_X = { home: 185, shop: 515, restaurant: 835, salon: 1105, school: 1405, park: 1740, convenience: 2040, department: 2340, glasses: 2660 };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 function showBubble(msg) {
@@ -1083,15 +1112,22 @@ function hillsLayer(baseY, amp, color, op) {
   return `<path d="${d}" fill="${color}" opacity="${op}"/>`;
 }
 function farSVG() {
+  const w = town.weather || 'sunny';
+  const rain = w === 'rainy' ? Array.from({ length: 60 }, () => {
+    const x = -420 + Math.random() * (TOWN_W + 840), y = Math.random() * 420;
+    return `<line x1="${x.toFixed(0)}" y1="${y.toFixed(0)}" x2="${(x - 10).toFixed(0)}" y2="${(y + 22).toFixed(0)}" stroke="#7fa8d8" stroke-width="2" opacity=".5"/>`;
+  }).join('') : '';
   return `
   <defs><linearGradient id="skyTown" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0" stop-color="#cfe9ff"/><stop offset="1" stop-color="#fdf3fb"/>
   </linearGradient></defs>
   <rect x="-420" width="${TOWN_W + 840}" height="520" fill="url(#skyTown)"/>
-  <circle cx="150" cy="72" r="28" fill="#ffe08a"/>
+  ${w === 'sunny' ? `<circle cx="150" cy="72" r="28" fill="#ffe08a"/>` : ''}
   ${cloud(320, 80, 1)}${cloud(640, 120, .8)}${cloud(960, 66, .9)}${cloud(1180, 140, .7)}${cloud(-140, 110, .85)}${cloud(1420, 95, .9)}
   ${hillsLayer(430, 26, '#e3d2f2', .55)}
-  ${hillsLayer(448, 22, '#f0ddef', .65)}`;
+  ${hillsLayer(448, 22, '#f0ddef', .65)}
+  ${w !== 'sunny' ? `<rect x="-420" width="${TOWN_W + 840}" height="520" fill="#7a8ca8" opacity="${w === 'rainy' ? .35 : .18}"/>` : ''}
+  ${rain}`;
 }
 function streetSVG() {
   const coins = town.coinSpots.map((cx, i) => `
@@ -1132,10 +1168,11 @@ function streetSVG() {
   ${buildingSVG(1600, 280, '#ffe3ec', '#ff6f91', '🎡 遊樂園', 'door', 'park')}
   ${buildingSVG(1930, 220, '#e8f7e0', '#5cb85c', '🏪 便利商店', 'door', 'convenience')}
   ${buildingSVG(2210, 260, '#faf3e0', '#d4af6a', '🏬 百貨公司', 'door', 'department')}
+  ${buildingSVG(2550, 220, '#e8f0fa', '#7a9cc9', '👓 眼鏡店', 'door', 'glasses')}
   ${heart(185, 210, 1.6, '#ff6fa5')}
   <svg x="425" y="290" width="50" height="56" viewBox="85 225 190 200">${DRESSES[0].svg('#ff8fc0')}</svg>
-  ${lamp(345)}${lamp(675)}${lamp(965)}${lamp(1250)}${lamp(1560)}${lamp(1890)}${lamp(2180)}
-  ${bush(320)}${bush(700)}${bush(985)}${bush(1245)}${bush(2490)}
+  ${lamp(345)}${lamp(675)}${lamp(965)}${lamp(1250)}${lamp(1560)}${lamp(1890)}${lamp(2180)}${lamp(2510)}
+  ${bush(320)}${bush(700)}${bush(985)}${bush(1245)}${bush(2795)}
   ${coins}`;
 }
 
@@ -1244,6 +1281,41 @@ function shopStand(cx, item, kind) {
          <text x="${cx + 10}" y="411" font-size="16" text-anchor="middle" fill="#d09010">${item.price}</text>`}
   </g>`;
 }
+function glassesSVG() {
+  const sung = ACCS.find(a => a.id === 'sunglasses');
+  const starg = ACCS.find(a => a.id === 'starglasses');
+  const heartg = ACCS.find(a => a.id === 'heartglasses');
+  return `
+  <defs><linearGradient id="floorGlass" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#eef5fc"/><stop offset="1" stop-color="#c9dcee"/>
+  </linearGradient></defs>
+  <rect width="480" height="400" fill="#f5f9fd"/>
+  <rect y="400" width="480" height="120" fill="url(#floorGlass)"/>
+  <path d="M0 445 h480 M0 490 h480" stroke="#a8c0da" stroke-width="3" opacity=".6"/>
+  <rect x="90" y="34" width="300" height="46" rx="23" fill="#7a9cc9"/>
+  <text x="240" y="65" font-size="21" text-anchor="middle" fill="#fff">👓 眼鏡店 👓</text>
+  <g transform="translate(24 68)">
+    <ellipse cx="28" cy="246" rx="26" ry="26" fill="#e8b47a"/>
+    <ellipse cx="8" cy="220" rx="9" ry="16" fill="#c98a4a" transform="rotate(-15 8 220)"/>
+    <ellipse cx="48" cy="220" rx="9" ry="16" fill="#c98a4a" transform="rotate(15 48 220)"/>
+    <circle cx="18" cy="242" r="3" fill="#463a44"/><circle cx="38" cy="242" r="3" fill="#463a44"/>
+    <circle cx="18" cy="242" r="7" fill="none" stroke="#7a9cc9" stroke-width="2"/>
+    <circle cx="38" cy="242" r="7" fill="none" stroke="#7a9cc9" stroke-width="2"/>
+    <path d="M25 242 L31 242" stroke="#7a9cc9" stroke-width="2"/>
+    <ellipse cx="28" cy="252" rx="7" ry="5" fill="#463a44"/>
+    <path d="M20 258 Q28 263 36 258" stroke="#463a44" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M4 274 L52 274 L46 306 L10 306 Z" fill="#fff"/>
+    ${heart(28, 290, 1.3, '#7a9cc9')}
+  </g>
+  ${dropShadow(75, 412, 66, 12, .15)}
+  <path d="M136 312 L146 302 L146 402 L136 412 Z" fill="#5a7aa8"/>
+  <rect x="14" y="312" width="122" height="16" rx="8" fill="#7a9cc9"/>
+  <rect x="20" y="326" width="110" height="86" rx="9" fill="#c9dcee"/>
+  ${heart(75, 366, 2, '#ffffff')}
+  ${shopStand(200, sung, 'acc')}
+  ${shopStand(310, starg, 'acc')}
+  ${shopStand(415, heartg, 'acc')}`;
+}
 function shopSVG() {
   const stardress = DRESSES.find(d => d.id === 'stardress');
   const catears = ACCS.find(a => a.id === 'catears');
@@ -1338,6 +1410,28 @@ function foodStand(cx, food) {
     <text x="${cx + 12}" y="371" font-size="16" text-anchor="middle" fill="#d09010">${food.price}</text>
   </g>`;
 }
+function miniStand(cx, cy, item) {
+  const owned = !isLocked(item);
+  return `
+  ${dropShadow(cx, cy + 52, 42, 9, .13)}
+  <g data-act="buy" data-id="${item.id}" style="cursor:pointer">
+    <rect x="${cx - 42}" y="${cy - 36}" width="84" height="92" rx="12" fill="#fff" opacity=".7"/>
+    <svg x="${cx - 34}" y="${cy - 30}" width="68" height="58" viewBox="${item.vb}">${item.svg()}</svg>
+    <rect x="${cx - 30}" y="${cy + 30}" width="60" height="24" rx="12" fill="#fff" stroke="${owned ? '#7fc98f' : '#eda711'}" stroke-width="2"/>
+    ${owned
+      ? `<text x="${cx}" y="${cy + 47}" font-size="12" text-anchor="middle" fill="#4a9e5e">✔ 買過了</text>`
+      : `<circle cx="${cx - 12}" cy="${cy + 42}" r="7" fill="#ffd23e" stroke="#eda711" stroke-width="1.5"/><text x="${cx + 8}" y="${cy + 47}" font-size="13" text-anchor="middle" fill="#d09010">${item.price}</text>`}
+  </g>`;
+}
+function workProp(cx, cy) {
+  return `
+  ${dropShadow(cx, cy + 46, 44, 10, .13)}
+  <g data-act="work" style="cursor:pointer">
+    <rect x="${cx - 44}" y="${cy - 30}" width="88" height="66" rx="14" fill="#fff" stroke="#5cb85c" stroke-width="3"/>
+    <text x="${cx}" y="${cy - 2}" font-size="26" text-anchor="middle">🧾</text>
+    <text x="${cx}" y="${cy + 24}" font-size="13" text-anchor="middle" fill="${town.canWork ? '#4a9e4a' : '#aaa'}">${town.canWork ? '幫忙顧店 🪙3' : '休息中...'}</text>
+  </g>`;
+}
 function restaurantSVG() {
   const cake = FOODS.find(f => f.id === 'cake');
   const ice = FOODS.find(f => f.id === 'icecream');
@@ -1408,6 +1502,8 @@ function convenienceSVG() {
   <rect x="14" y="312" width="122" height="16" rx="8" fill="#5cb85c"/>
   <rect x="20" y="326" width="110" height="86" rx="9" fill="#a8dda0"/>
   ${heart(75, 366, 2, '#ffffff')}
+  ${workProp(210, 140)}
+  ${miniStand(400, 140, ACCS.find(a => a.id === 'umbrella'))}
   ${foodStand(200, tea)}
   ${foodStand(310, chips)}
   ${foodStand(415, pop)}`;
@@ -1742,6 +1838,20 @@ function popBalloon(i) {
     if (townActive && town.loc === 'park') renderTown();
   }, 1400 + Math.random() * 900);
 }
+let workTimer = null;
+function doWork() {
+  if (!town.canWork) { showBubble('先休息一下，等一下再來 😊'); return; }
+  town.canWork = false;
+  state.coins = (state.coins || 0) + 3;
+  saveState(); coinsUI(); ding(); burst(6);
+  showBubble('打工賺了 3 金幣 🧾');
+  renderTown();
+  clearTimeout(workTimer);
+  workTimer = setTimeout(() => {
+    town.canWork = true;
+    if (townActive && town.loc === 'convenience') renderTown();
+  }, 20000);
+}
 let gachaTimer = null;
 function playGacha() {
   if ((state.coins || 0) < GACHA_PRICE) {
@@ -1788,6 +1898,7 @@ function renderTown() {
   else if (town.loc === 'park') world = parkSVG();
   else if (town.loc === 'convenience') world = convenienceSVG();
   else if (town.loc === 'department') world = departmentSVG();
+  else if (town.loc === 'glasses') world = glassesSVG();
   else world = shopSVG();
   const dark = (town.loc === 'home' && town.lampOff)
     ? `<rect width="480" height="520" fill="#1a1240" opacity=".5" pointer-events="none"/>` : '';
@@ -1857,6 +1968,7 @@ function townLoop() {
 function spawnCoins() {
   town.coinSpots = [];
   for (let i = 0; i < 3; i++) town.coinSpots.push(90 + Math.random() * (TOWN_W - 180));
+  town.weather = pick(['sunny', 'sunny', 'cloudy', 'rainy']);
 }
 function handleAct(d) {
   if (d.act === 'door') { town.tx = +d.x; town.entering = d.loc; }
@@ -1889,6 +2001,7 @@ function handleAct(d) {
   }
   else if (d.act === 'balloon') { popBalloon(+d.i); }
   else if (d.act === 'gacha') { playGacha(); }
+  else if (d.act === 'work') { doWork(); }
 }
 function answerQuiz(idx) {
   const q = town.quiz;
