@@ -1969,6 +1969,10 @@ function spawnCoins() {
   town.coinSpots = [];
   for (let i = 0; i < 3; i++) town.coinSpots.push(90 + Math.random() * (TOWN_W - 180));
   town.weather = pick(['sunny', 'sunny', 'cloudy', 'rainy']);
+  if (town.weather === 'rainy' && state.owned.includes('umbrella') && !state.accs.includes('umbrella')) {
+    state.accs.push('umbrella');
+    saveState();
+  }
 }
 function handleAct(d) {
   if (d.act === 'door') { town.tx = +d.x; town.entering = d.loc; }

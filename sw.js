@@ -1,4 +1,4 @@
-const CACHE = 'princess-closet-v15';
+const CACHE = 'princess-closet-v16';
 const FILES = ['./', './index.html', './style.css', './app.js', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
